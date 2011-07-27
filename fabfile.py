@@ -1,15 +1,18 @@
-from fabric.api import run
+from fabric.api import run, env
 
-
-def teststatic():
-    print 'Running "findstatic"'
-    run('python manage.py findstatic') # should determine which static files would be found.
-    print 'Running "collectstatic" as test'
-    run('python manage.py collectstatic --dry-run') # should show what files would be copied to which directories
-
-def go(): # just a runserver shortcut
-    run('python manage.py runserver')
+def localhost():
+    env.hosts = ['localhost']
 
 def webfaction(): # should be used to ssh into webfaction
+    env.hosts = ['localcode@localcode.webfaction.com']
+
+def teststatic():
+    run('python manage.py collectstatic --dry-run -i "*/lib/*"')
+
+def testfab():
+    run('pwd')
+
+def deploy():
+    print 'deploy time'
     pass
 
