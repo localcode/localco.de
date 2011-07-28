@@ -3,9 +3,6 @@
 import os
 from pw import PW
 
-def getFile():
-    return __file__
-
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
@@ -140,6 +137,7 @@ INSTALLED_APPS = (
     'django.contrib.admindocs',
     'django.contrib.webdesign',
     'south',
+    'layers',
 )
 
 # A sample logging configuration. The only tangible logging
