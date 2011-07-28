@@ -1,0 +1,17 @@
+#pagesubtitle {
+  margin-left: 24px;
+  font-size: 18px;
+  color: #666;
+}
+
+#search {
+  padding-left: 24px;
+  border: 1px solid #CCC;
+  font-weight: bold;
+  background-color: #fff;
+}
+
+#layerlist, #fileuploader {
+  background-color: #EEE;
+  height: 600px;
+}
