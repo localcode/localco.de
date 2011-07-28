@@ -42,7 +42,6 @@ pre, code, kbd, samp { font-family: monospace, sans-serif; }
 
 html { overflow-y: scroll; }
 a:hover, a:active { outline: none; }
-ul, ol { margin-left: 2em; }
 ol { list-style-type: decimal; }
 nav ul, nav li { margin: 0; list-style:none; list-style-image: none; }
 small { font-size: 85%; }
@@ -98,14 +97,7 @@ body {
 #container {
   margin: 0 auto;
   width: 960px;
-  background-color: #FCFCFC;
-}
-
-#pagetitle {
-  font-size: 24px;
-  font-weight: bold;
-  margin-top: 72px;
-  margin-bottom: 72px;
+  /*background-color: #FCFCFC;*/
 }
 
 

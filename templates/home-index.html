@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load webdesign %}
+
+{% block jslibs %}
+{% endblock %}
+
+{% block css %}
+        <link rel="stylesheet" href="{% get_static_prefix %}css/home.css" type="text/css"/>
+{% endblock %}
+
+    {% block header %}
+      <div id="pagetitle">
+        Local Code
+      </div>
+    {% endblock %}
+
+    {% block nav %}
+          <ul>
+            <li><a href="/about"><div class="sitenav">About</div></a></li>
+            <li><a href="/tools"><div class="sitenav">Download Tools</div></a></li>
+            <li><a href="/layers"><div class="sitenav">Browse Data</div></a></li>
+            <li><a href="/layers/upload"><div class="sitenav">Upload Data</div></a></li>
+            <li><a href="/sites/create"><div class="sitenav">Create Sites</div></a></li>
+          </ul>
+    {% endblock %}
+
+    {% block content %}
+                <div id="intro">Welcome to Local Code.</div>
+                <div class="col">
+                {% lorem 2 p %}
+              </div>
+                <div class="col">
+                {% lorem 2 p random %}
+              </div>
+    {% endblock %}
+
+{% block scripts %}
+{% endblock %}
