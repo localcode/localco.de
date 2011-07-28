@@ -1,4 +1,5 @@
 from layers.models import FileUpload, DataLayer, LayerGroup, Tag
+from django.contrib import admin
 
 admin.site.register( FileUpload )
 admin.site.register( DataLayer )
