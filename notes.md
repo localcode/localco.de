@@ -1,5 +1,24 @@
 # NOTES on development and deployment
 
+## To Access Webfaction
+
+On any unix machine, open terminal and use the `ssh` tool to log in to webfaction:
+
+```bash
+ssh localcode@localcode.webfactional.com
+```
+
+Then enter the password.  
+The folder organization at webfaction is organized like so:
+
+```
+/home/
+    localcode/
+        webapps/
+            django/
+            static/
+            media/
+```
 
 ### Static Files
 
