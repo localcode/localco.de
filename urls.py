@@ -1,5 +1,5 @@
 from django.conf.urls.defaults import patterns, include, url
-import layers #, sites
+import layers #, islands
 
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
@@ -17,12 +17,12 @@ urlpatterns = patterns('',
     (r'^layers/upload/$', 'layers.views.upload'),
     (r'^layers/user/$', 'layers.views.user'),
 
-    # sites
-    (r'^sites/$', 'sites.views.index'),
-    (r'^sites/create/$', 'sites.views.create'),
-    (r'^sites/preview/$', 'sites.views.preview'),
-    (r'^sites/build/$', 'sites.views.build'),
-    (r'^sites/download/$', 'sites.views.download'),
+    # islands
+    (r'^islands/$', 'islands.views.index'),
+    (r'^islands/create/$', 'islands.views.create'),
+    (r'^islands/preview/$', 'islands.views.preview'),
+    (r'^islands/build/$', 'islands.views.build'),
+    (r'^islands/download/$', 'islands.views.download'),
 
     # admin
     (r'^admin/', include(admin.site.urls)),
