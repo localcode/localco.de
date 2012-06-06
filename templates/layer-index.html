@@ -8,6 +8,7 @@
     {% block css %}
         <link rel="stylesheet" href="{% get_static_prefix %}css/home.css" type="text/css"/>
         <link rel="stylesheet" href="{% get_static_prefix %}css/layers.css" type="text/css"/>
+        <link rel="stylesheet" href="{% get_static_prefix %}css/custom-theme/jquery-ui-1.8.16.custom.css" type="text/css"/>
     {% endblock %}
 
             {% block header %}
@@ -41,7 +42,7 @@
                 {% for layer in layers %}
                 <li><div id="{{ layer.name }}{{ layer.id }}" class="layerblock">
                   <span class="layername">{{layer.name}}</span>
-                  <span class="layertype">{{layer.type}}</span>
+                  <span class="layertype">{{layer.geometry_type}}</span>
                   {% if layer.tags %}
                   <span class="tags">
                     {% for tag in layer.tags %}

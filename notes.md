@@ -22,7 +22,7 @@ The folder organization at webfaction is organized like so:
 
 ### Static Files
 
-Static files, such as css, javascript, and icons, can be placed in a few locations during development. They can be placed in static/, or appname/static/. The django commandline command `python manage.py collectstatic` whould search through these directories and copy all the needed static files into the directory designated by `STATIC_ROOT`, which is set as `'/Library/WebServer/Documents/static/localcode/'` for local development, and `'/home/localcode/webapps/static/'` for deployment on webfaction.
+Static files, such as css, javascript, and icons, can be placed in a few locations during development. They can be placed in static/, or appname/static/. The django commandline command `python manage.py collectstatic` should search through these directories and copy all the needed static files into the directory designated by `STATIC_ROOT`, which is set as `'/Library/WebServer/Documents/static/localcode/'` for local development, and `'/home/localcode/webapps/static/'` for deployment on webfaction.
 
 ### Media
 

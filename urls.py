@@ -15,14 +15,18 @@ urlpatterns = patterns('',
     # layers
     (r'^layers/$', 'layers.views.index'),
     (r'^layers/upload/$', 'layers.views.upload'),
-    (r'^layers/user/$', 'layers.views.user'),
+    #(r'^layers/user/$', 'layers.views.user'),
+
+    # layers api
+    #(r'^layers/api/upload/$' 'layers.views.ajaxUpload'),
+    #(r'^layers/api/info/$' 'layers.views.layerInfo'),
 
     # islands
-    (r'^islands/$', 'islands.views.index'),
-    (r'^islands/create/$', 'islands.views.create'),
-    (r'^islands/preview/$', 'islands.views.preview'),
-    (r'^islands/build/$', 'islands.views.build'),
-    (r'^islands/download/$', 'islands.views.download'),
+    #(r'^islands/$', 'islands.views.index'),
+    #(r'^islands/create/$', 'islands.views.create'),
+    #(r'^islands/preview/$', 'islands.views.preview'),
+    #(r'^islands/build/$', 'islands.views.build'),
+    #(r'^islands/download/$', 'islands.views.download'),
 
     # admin
     (r'^admin/', include(admin.site.urls)),
