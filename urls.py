@@ -1,5 +1,5 @@
 from django.conf.urls.defaults import patterns, include, url
-import layers #, islands
+import webfinches #, islands
 
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
@@ -12,14 +12,15 @@ urlpatterns = patterns('',
     (r'^about/$', 'localcode.views.about'),
     (r'^tools/$', 'localcode.views.tools'),
 
-    # layers
-    (r'^layers/$', 'layers.views.index'),
-    (r'^layers/upload/$', 'layers.views.upload'),
-    #(r'^layers/user/$', 'layers.views.user'),
+    # webfinches
+    (r'^webfinches/$', 'webfinches.views.index'),
+    (r'^webfinches/upload/$', 'webfinches.views.upload'),
+    (r'^webfinches/review/$', 'webfinches.views.review'),
+    #(r'^webfinches/user/$', 'webfinches.views.user'),
 
-    # layers api
-    #(r'^layers/api/upload/$' 'layers.views.ajaxUpload'),
-    #(r'^layers/api/info/$' 'layers.views.layerInfo'),
+    # webfinches api
+    #(r'^webfinches/api/upload/$' 'webfinches.views.ajaxUpload'),
+    #(r'^webfinches/api/info/$' 'webfinches.views.layerInfo'),
 
     # islands
     #(r'^islands/$', 'islands.views.index'),
