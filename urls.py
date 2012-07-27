@@ -9,8 +9,8 @@ urlpatterns = patterns('',
 
     # home
     (r'^$', 'localcode.views.index'),
-    (r'^about/$', 'localcode.views.about'),
-    (r'^tools/$', 'localcode.views.tools'),
+    #(r'^about/$', 'localcode.views.about'),
+    #(r'^tools/$', 'localcode.views.tools'),
 
     # webfinches
     (r'^webfinches/$', 'webfinches.views.index'),
