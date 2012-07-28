@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 {% load webdesign %}
+{% load textbits %}
 
 {% block jslibs %}
 {% endblock %}
@@ -26,12 +27,11 @@
     {% endblock %}
 
     {% block content %}
-                <div id="intro">Welcome to Local Code.</div>
                 <div class="col">
-                {% lorem 2 p %}
+                  {% textbit "about" %}
               </div>
                 <div class="col">
-                {% lorem 2 p random %}
+                  {% textbit "instructions" %}
               </div>
     {% endblock %}
 

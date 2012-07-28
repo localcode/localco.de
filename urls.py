@@ -8,8 +8,8 @@ admin.autodiscover()
 urlpatterns = patterns('',
 
     # home
-    (r'^$', 'localcode.views.index'),
-    #(r'^about/$', 'localcode.views.about'),
+    (r'^$', 'localcode.views.home'),
+    #(home'^about/$', 'localcode.views.about'),
     #(r'^tools/$', 'localcode.views.tools'),
 
     # webfinches

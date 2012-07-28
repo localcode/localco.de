@@ -137,6 +137,7 @@ INSTALLED_APPS = (
     'django.contrib.admindocs',
     'django.contrib.webdesign',
     'webfinches',
+    'textbits',
 )
 
 # A sample logging configuration. The only tangible logging
