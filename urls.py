@@ -16,6 +16,7 @@ urlpatterns = patterns('',
     (r'^webfinches/$', 'webfinches.views.index'),
     (r'^webfinches/upload/$', 'webfinches.views.upload'),
     (r'^webfinches/review/$', 'webfinches.views.review'),
+    (r'^webfinches/configure/$', 'webfinches.views.configure'),
     #(r'^webfinches/user/$', 'webfinches.views.user'),
 
     # webfinches api

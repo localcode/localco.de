@@ -1,0 +1,36 @@
+{% extends 'webfinches/index.html' %}
+{% load static %}
+
+{% block jslibs %}
+
+{% endblock %}
+
+{% block subtitle %}
+    Configure Data Layers
+{% endblock %}
+
+{% block layernavs %}
+            <li><a href="/webfinches"><div class="sitenav">Browse Data</div></a></li>
+{% endblock %}
+
+{% block content %}
+				<div class="show-layers">
+					{% for item in layers %}
+				  <div> {{item}} </div> 
+				  
+<!--			  	<div> Named </div> 
+				  <div> Authored </div> 
+				  <div> Dated </div> 
+				  <div> Noted </div> 	-->
+				  {% endfor %}
+				</div>
+{% endblock %}
+					
+             
+
+
+{% block scripts %}
+  <script type="text/javascript" src="{% get_static_prefix %}js/jquery-1.6.2.min.js"></script>
+  <script type="text/javascript" src="{% get_static_prefix %}js/jquery-ui-1.8.16.custom.min.js"></script>
+  <script type="text/javascript" src="{% get_static_prefix %}js/loadPage.js"></script>
+{% endblock %}
