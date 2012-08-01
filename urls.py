@@ -4,13 +4,14 @@ import webfinches #, islands
 
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
+from django.contrib.auth.views import login, logout
 admin.autodiscover()
 
 urlpatterns = patterns('',
 
     # home
-    (r'^$', 'localcode.views.index'),
-    #(r'^about/$', 'localcode.views.about'),
+    (r'^$', 'localcode.views.home'),
+    #(home'^about/$', 'localcode.views.about'),
     #(r'^tools/$', 'localcode.views.tools'),
 
     # webfinches
@@ -18,9 +19,9 @@ urlpatterns = patterns('',
     (r'^webfinches/login/$', 'webfinches.views.login'),
     (r'^webfinches/login/create_account/$', 'webfinches.views.create_account'),
     (r'^webfinches/upload/$', 'webfinches.views.upload'),
-    (r'^webfinches/review/$', 'webfinches.views.review'),
-    (r'^webfinches/browse/configure/$', 'webfinches.views.configure'),
-    (r'^webfinches/downloadtools/download/$', 'webfinches.views.download'),
+
+    #(r'^webfinches/review/$', 'webfinches.views.review'),
+    #(r'^webfinches/configure/$', 'webfinches.views.configure'),
     #(r'^webfinches/user/$', 'webfinches.views.user'),
 
 		# Login / logout.
@@ -40,12 +41,8 @@ urlpatterns = patterns('',
     #(r'^webfinches/api/upload/$' 'webfinches.views.ajaxUpload'),
     #(r'^webfinches/api/info/$' 'webfinches.views.layerInfo'),
 
-    # islands
-    #(r'^islands/$', 'islands.views.index'),
-    #(r'^islands/create/$', 'islands.views.create'),
-    #(r'^islands/preview/$', 'islands.views.preview'),
-    #(r'^islands/build/$', 'islands.views.build'),
-    #(r'^islands/download/$', 'islands.views.download'),
+    # authentication
+    (r'^login/$', 'django.contrib.auth.views.login'),
 
     # admin
     (r'^admin/', include(admin.site.urls)),
