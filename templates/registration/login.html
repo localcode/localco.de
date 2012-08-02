@@ -11,9 +11,13 @@
 
 {% block content %}
 
-		<form>		
+		<form>
+		<table>		
+		<form method="post" action="{% url django.contrib.auth.views.login %}"  enctype="multipart/form-data">
+		<!--<form id="loggin" action="/webfinches/login/" method="POST" enctype="multipart/form-data">-->
+					{% csrf_token %}
+          {{ formset.management_form }}
 		
-		<table>
 		
 		<tr>
 				<th>Login Information</th>

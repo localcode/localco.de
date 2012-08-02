@@ -16,8 +16,8 @@ urlpatterns = patterns('',
 
     # webfinches
     (r'^webfinches/$', 'webfinches.views.index'),
-    (r'^webfinches/login/$', 'webfinches.views.login'),
-    (r'^webfinches/login/create_account/$', 'webfinches.views.create_account'),
+    #(r'^webfinches/login/$', 'webfinches.views.login'),
+    #(r'^webfinches/login/create_account/$', 'webfinches.views.create_account'),
     (r'^webfinches/upload/$', 'webfinches.views.upload'),
 
     #(r'^webfinches/review/$', 'webfinches.views.review'),
@@ -26,8 +26,10 @@ urlpatterns = patterns('',
 
 		# Login / logout.
     #(r'^webfinches/login/$', 'django.contrib.auth.webfinches.views.login'),
-    #(r'^webfinches/logout/$', logout_page),
+    (r'^webfinches/login/$', 'django.contrib.auth.views.login', {'template_name': 'registration/login.html'}),
+    (r'^webfinches/logout/$', 'django.contrib.auth.views.logout' ),
     (r'^webfinches/', include('registration.backends.default.urls')),
+    (r'^webfinches/login/create_account/$', 'webfinches.views.create_account'),
     
 
     # Web portal.
@@ -42,7 +44,7 @@ urlpatterns = patterns('',
     #(r'^webfinches/api/info/$' 'webfinches.views.layerInfo'),
 
     # authentication
-    (r'^login/$', 'django.contrib.auth.views.login'),
+    #(r'^login/$', 'django.contrib.auth.views.login'),
 
     # admin
     (r'^admin/', include(admin.site.urls)),
