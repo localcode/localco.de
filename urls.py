@@ -7,6 +7,7 @@ from django.contrib import admin
 from django.contrib.auth.views import login, logout
 admin.autodiscover()
 
+
 urlpatterns = patterns('',
 
     # home
@@ -26,10 +27,14 @@ urlpatterns = patterns('',
 
 		# Login / logout.
     #(r'^webfinches/login/$', 'django.contrib.auth.webfinches.views.login'),
-    (r'^webfinches/login/$', 'django.contrib.auth.views.login', {'template_name': 'registration/login.html'}),
+    (r'^webfinches/login(?P<login_id>\d+)/$', login, {'template_name': 'registration/login.html'}),
     (r'^webfinches/logout/$', 'django.contrib.auth.views.logout' ),
     (r'^webfinches/', include('registration.backends.default.urls')),
     (r'^webfinches/login/create_account/$', 'webfinches.views.create_account'),
+    (r'^webfinches/login/logged/$', 'webfinches.views.logged'),
+
+                      
+
     
 
     # Web portal.
