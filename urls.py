@@ -18,6 +18,7 @@ urlpatterns = patterns('',
     #(r'^webfinches/login/$', 'webfinches.views.login'),
     #(r'^webfinches/login/create_account/$', 'webfinches.views.create_account'),
     (r'^webfinches/upload/$', 'webfinches.views.upload'),
+    (r'^webfinches/review/$', 'webfinches.views.review'),
 
     #(r'^webfinches/review/$', 'webfinches.views.review'),
     #(r'^webfinches/configure/$', 'webfinches.views.configure'),
