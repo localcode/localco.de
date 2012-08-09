@@ -22,10 +22,8 @@ urlpatterns = patterns('',
     #(r'^webfinches/user/$', 'webfinches.views.user'),
 
 	# Login / logout.
-    (r'^webfinches/login(?P<login_id>\d+)/$', login, {'template_name': 'registration/login.html'}),
-    (r'^webfinches/logout/$', 'django.contrib.auth.views.logout' ),
-    (r'^webfinches/login/create_account/$', 'webfinches.views.create_account'),
-    (r'^webfinches/login/logged/$', 'webfinches.views.logged'),
+    (r'^login/$', login, {'template_name': 'registration/login.html'}),
+    (r'^logout/$', 'django.contrib.auth.views.logout' ),
 
     # Web portal.
     #(r'^portal/', include('portal.urls')),
