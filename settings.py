@@ -144,19 +144,8 @@ INSTALLED_APPS = (
     'django.contrib.webdesign',
     'django.contrib.humanize',
     'webfinches',
-    'registration',
     'textbits',
-    'registration',
-    'django.contrib.contenttypes',
-    #'webfinches_login',
 )
-
-AUTH_PROFILE_MODULE = 'webfinches.UserProfile'
-ACCOUNT_ACTIVATION_DAYS = 2 # Any value. 
-EMAIL_HOST='smtp.gmail.com'
-EMAIL_PORT=587
-EMAIL_HOST_USER='user@example.com'
-EMAIL_HOST_PASSWORD='secret'
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
