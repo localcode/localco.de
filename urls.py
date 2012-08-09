@@ -24,12 +24,8 @@ urlpatterns = patterns('',
 	# Login / logout.
     (r'^webfinches/login(?P<login_id>\d+)/$', login, {'template_name': 'registration/login.html'}),
     (r'^webfinches/logout/$', 'django.contrib.auth.views.logout' ),
-    (r'^webfinches/', include('registration.backends.default.urls')),
     (r'^webfinches/login/create_account/$', 'webfinches.views.create_account'),
     (r'^webfinches/login/logged/$', 'webfinches.views.logged'),
-	#(r'^webfinches/accounts/', include('registration.urls')),
-	(r'^accounts/', include('registration.backends.default.urls')),
-	#(r'^register/$',register,{ 'backend': 'registration.backends.default.DefaultBackend' }, name='registration_register'),
 
     # Web portal.
     #(r'^portal/', include('portal.urls')),
