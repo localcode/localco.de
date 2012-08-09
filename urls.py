@@ -15,7 +15,6 @@ urlpatterns = patterns('',
 
     # webfinches
     (r'^webfinches/$', 'webfinches.views.index'),
-    #(r'^webfinches/login/$', 'webfinches.views.login'),
     #(r'^webfinches/login/create_account/$', 'webfinches.views.create_account'),
     (r'^webfinches/upload/$', 'webfinches.views.upload'),
     (r'^webfinches/review/$', 'webfinches.views.review'),
@@ -24,16 +23,15 @@ urlpatterns = patterns('',
     #(r'^webfinches/configure/$', 'webfinches.views.configure'),
     #(r'^webfinches/user/$', 'webfinches.views.user'),
 
-		# Login / logout.
-    #(r'^webfinches/login/$', 'django.contrib.auth.webfinches.views.login'),
+	# Login / logout.
     (r'^webfinches/login(?P<login_id>\d+)/$', login, {'template_name': 'registration/login.html'}),
     (r'^webfinches/logout/$', 'django.contrib.auth.views.logout' ),
     (r'^webfinches/', include('registration.backends.default.urls')),
     (r'^webfinches/login/create_account/$', 'webfinches.views.create_account'),
     (r'^webfinches/login/logged/$', 'webfinches.views.logged'),                     
-		#(r'^webfinches/accounts/', include('registration.urls')),
-		(r'^accounts/', include('registration.backends.default.urls')),
-		#(r'^register/$',register,{ 'backend': 'registration.backends.default.DefaultBackend' }, name='registration_register'),
+	#(r'^webfinches/accounts/', include('registration.urls')),
+	(r'^accounts/', include('registration.backends.default.urls')),
+	#(r'^register/$',register,{ 'backend': 'registration.backends.default.DefaultBackend' }, name='registration_register'),
 		
     # Web portal.
     #(r'^portal/', include('portal.urls')),
