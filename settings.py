@@ -1,0 +1,1 @@
+from mysettings import *
