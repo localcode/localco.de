@@ -14,16 +14,64 @@
 {% endblock %}
 
 {% block content %}
-				<div class="show-layers">
+		
+		<form>
+				
+				
+				<!--header-->
+				
+				<div>
+					<div class="layerlist_column"><h1>Layers</h1></div>
+					<div class="layerlist_column"><h1>Projection</h1></div>
+					<div align="center" class="layerlist_column"><h1>EPSG Code</h1></div>
+					<div align="center" class="layerlist_column"><h1>Site Layer</h1></div>
+				</div>
+				
+				<!--end of header-->
+			
+			<div class="layerlist_column">
+			{% for item in layers %}
+					<div class="layerlist_row"> {{item}} </div> 
+				  	{% endfor %}
+			</div>
+			
+			<div class="layerlist_column">
+					{% for item in projections %}
+					<div class="layerlist_row"> {{item}} </div>
+				{% endfor %}
+			</div>
+			
+			<div class="layerlist_column">
+					{% for item in projections %}
+					<div align="center" class="layerlist_row">  <input type="text" name="Set Radius"/> </div>
+				{% endfor %}
+			</div>
+						
+			<div class="layerlist_column">
+			{% for item in layers %}
+				  <div align="center" class="layerlist_row"> <input type="checkbox"/></div> 
+				  {% endfor %}
+			</div>
+			
+		
+				<br /> <br />
+				<p> Set Radius: <input type="text" name="Set Radius"/></p>
+				<p align="center"><input type="submit" value="Configure" /></p>
+			
+			
+		</form>
+		
+		
+						<!--<div>
+					{% for item in projections %}
+				  <div> {{item}} </div> 
+				  {% endfor %}-->
+				  		
+<!--				<div class="show-layers">
 					{% for item in layers %}
 				  <div> {{item}} </div> 
-				  
-<!--			  	<div> Named </div> 
-				  <div> Authored </div> 
-				  <div> Dated </div> 
-				  <div> Noted </div> 	-->
 				  {% endfor %}
-				</div>
+				</div>-->
 {% endblock %}
 					
              

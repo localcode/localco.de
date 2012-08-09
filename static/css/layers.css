@@ -9,7 +9,44 @@
   font-weight: bold;
   background-color: #fff;
 }
-#layerlist,
+
+
+.layerlist_column {
+	width: 25%;
+	height: auto;
+	#background-color: #CBCBCB;
+	float: left;
+	line-height: 150%;
+	
+}
+
+.layerlist_row {
+	height: 25px;
+	width: 100%;
+	float: left;
+	margin-bottom: 8px;
+	#background-color: #999;
+	
+}
+
+.sitelist_column {
+	width: 50%;
+	height: auto;
+	#background-color: #CBCBCB;
+	float: left;
+	line-height: 150%;
+	
+}
+
+.sitelist_row {
+	height: 25px;
+	width: 100%;
+	float: left;
+	margin-bottom: 8px;
+	#background-color: #999;
+	
+}
+
 #fileupload-content {
   background-color: #EEE;
   overflow: auto;

@@ -1,0 +1,58 @@
+<!--
+form
+    The registration form. This will be an instance of some subclass of django.forms.
+    Form; consult Django's forms documentation for information on how to display this in a template. -->
+
+{% extends 'webfinches/index.html' %}
+{% load static %}
+
+{% block jslibs %}
+
+{% endblock %}
+
+{% block subtitle %}
+    Create an Account
+{% endblock %}
+
+{% block content %}
+
+{% if form.errors %}
+
+		<p>Your username and password didn't match. Please try again.</p>
+			{% endif %}
+		<form method="post" action="/webfinches/register/complete/">
+		
+		{% csrf_token %}
+			<p><h1>Required Fields:</h1></p>
+			<table>
+			<tr>
+				<td><label for="id_name">Name:</label></td>
+				<td><input id="id_name" type="text" name="name"/></td>
+			</tr>
+			<tr>
+			  <td><label for="id_username">Username:</label></td>
+				<td><input id="id_username" type="text" name="username" maxlength="100" /></td>
+			<tr>
+			</tr>
+			  <td><label for="id_password">Password:</label></td>
+				<td><input type="password" name="password1" id="id_password1" maxlength="30" /></td>
+			<tr>
+			</tr>
+			  <td><label for="id_password">Repeat Password:</label></td>
+				<td><input type="password" name="password2" id="id_password2" maxlength="30" /></td>
+			</tr>
+			<table>
+
+			<input type="submit" value="register" />
+			
+		</form>
+		
+{% endblock %}
+
+        
+
+{% block scripts %}
+  <script type="text/javascript" src="{% get_static_prefix %}js/jquery-1.6.2.min.js"></script>
+  <script type="text/javascript" src="{% get_static_prefix %}js/jquery-ui-1.8.16.custom.min.js"></script>
+  <script type="text/javascript" src="{% get_static_prefix %}js/loadPage.js"></script>
+{% endblock %}

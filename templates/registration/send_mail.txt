@@ -1,0 +1,4 @@
+Thanks for registering. 
+Click on the activation link to activate your account:
+<a href="/webfinches/activate/complete/">Click to activate</a> 
+
