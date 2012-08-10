@@ -1,0 +1,66 @@
+@import "localcode-scheme.less";
+
+#pagesubtitle {
+  margin-left: @gut;
+  font-size: 18px;
+  color: @darkgray;
+}
+
+#search {
+  padding-left: @gut;
+  border: 1px solid @gray;
+  .bold;
+  background-color: @white;
+}
+
+#layerlist, #fileupload-content {
+  background-color: @lightgray;
+  overflow: auto;
+  height: @realtall;
+}
+
+
+button {
+  background-color: @lightgray;
+  border: 2px solid @darkishgray;
+  border-radius: 5px;
+  /*-moz-box-shadow: -1px -1px 0px #aaa;*/
+  /*-webkit-box-shadow: -1px -1px 0px #aaa;*/
+  /*box-shadow: -1px -1px 0px #aaa;*/
+  
+}
+button:hover {
+  background-color: #ddd;
+  border: 2px solid #888;
+  /*-moz-box-shadow: 0 0 2px #E80070;*/
+  /*-webkit-box-shadow: 0 0 2px #E80070;*/
+  /*box-shadow: 0 0 2px #E80070;*/
+}
+button:active {
+  /*color: #FF0060;*/
+  /*border: 2px solid #FF0060;*/
+  color: #000;
+  border: 2px solid #000;
+  background-color: #aaa;
+}
+
+.layerset {
+  // style for any layer stack
+  background-color: @gray;
+  .layerblock {
+    div {
+      .xpad;
+    }
+    margin: @vu / 8;
+    background-color: @back;
+    .ypad(2);
+    .layernotes {
+    overflow: auto;
+    }
+  }
+}
+.config {
+  // style for the config column
+}
+
+

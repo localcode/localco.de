@@ -1,0 +1,83 @@
+@import "localcode-scheme.less";
+
+body, select, input, textarea {  color: @text; }
+h1, h2, h3, h4, h5, h6 { font-weight: bold; }
+
+a, a:active, a:visited, { 
+  text-decoration: none;
+  color: @links;
+}
+
+/*hover style*/
+a:hover, .headernav:hover, .navitem:hover {
+  background-color: @text;
+}
+a:hover {
+  color: @hilite;
+}
+
+body {
+  font-family: @sans;
+  font-size: @char;
+  line-height: @vu;
+  color: @text;
+  background-color: @back;
+}
+h1, h2, h3, h4, h5, h6, p { .xpad; }
+p {
+  margin-bottom: @vu;
+}
+
+#container {
+  margin: 0 auto;
+  width: 960px;
+}
+
+#header {
+  padding-top: 72px;
+  padding-left: 24px;
+  height: 48px;
+  width: 100%;
+}
+#pagetitle {
+  font-weight: bold;
+  font-size: @vu;
+}
+
+#nav {
+  height: @vu * 2;
+  width: 100%;
+  border-top: 1px solid @gray;
+  border-bottom: 1px solid @gray;
+}
+#nav li {
+  list-style-type: none;
+}
+#nav a {
+  text-decoration: none;
+  color: @text;
+}
+.sitenav {
+  .xpad;
+  .ypad(2);
+  float: left;
+}
+.sitenav:hover {
+  color: @back;
+  background-color: @text;
+}
+
+#content {
+  margin-top: @vu * 2;
+  height: @realtall;
+}
+#intro {
+  .bold;
+  .xpad;
+  margin-bottom: @vu;
+}
+.col {
+  float: left;
+  width: @col;
+  .guttermargins;
+}
