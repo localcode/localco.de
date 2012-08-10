@@ -72,35 +72,6 @@ a:link { -webkit-tap-highlight-color: #FF5E99; }
 button {  width: auto; overflow: visible; }
 .ie7 img { -ms-interpolation-mode: bicubic; }
 
-body, select, input, textarea {  color: #000; }
-h1, h2, h3, h4, h5, h6 { font-weight: bold; }
-a, a:active, a:visited, { 
-  text-decoration: none;
-  color: #0000FF;
-}
-/*hover style*/
-a:hover, .headernav:hover, .navitem:hover {
-  background-color: #FFFF00;
-}
-a:hover {
-  color: #FF0000;
-}
-
-body {
-  font-family: Helvetica, Arial, sans-serif;
-  font-size: 14px;
-  line-height: 24px;
-  color: #000000;
-  background-color: #EEE;
-}
-
-#container {
-  margin: 0 auto;
-  width: 960px;
-  /*background-color: #FCFCFC;*/
-}
-
-
 .ir { display: block; text-indent: -999em; overflow: hidden; background-repeat: no-repeat; text-align: left; direction: ltr; }
 .hidden { display: none; visibility: hidden; }
 .visuallyhidden { border: 0; clip: rect(0 0 0 0); height: 1px; margin: -1px; overflow: hidden; padding: 0; position: absolute; width: 1px; }

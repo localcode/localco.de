@@ -1,60 +1,23 @@
 #pagesubtitle {
   margin-left: 24px;
   font-size: 18px;
-  color: #666;
+  color: #666666;
 }
 #search {
   padding-left: 24px;
-  border: 1px solid #CCC;
+  border: 1px solid #cccccc;
   font-weight: bold;
-  background-color: #fff;
+  background-color: #ffffff;
 }
-
-
-.layerlist_column {
-	width: 25%;
-	height: auto;
-	#background-color: #CBCBCB;
-	float: left;
-	line-height: 150%;
-	
-}
-
-.layerlist_row {
-	height: 25px;
-	width: 100%;
-	float: left;
-	margin-bottom: 8px;
-	#background-color: #999;
-	
-}
-
-.sitelist_column {
-	width: 50%;
-	height: auto;
-	#background-color: #CBCBCB;
-	float: left;
-	line-height: 150%;
-	
-}
-
-.sitelist_row {
-	height: 25px;
-	width: 100%;
-	float: left;
-	margin-bottom: 8px;
-	#background-color: #999;
-	
-}
-
+#layerlist,
 #fileupload-content {
-  background-color: #EEE;
+  background-color: #eeeeee;
   overflow: auto;
   height: 600px;
 }
 button {
-  background-color: #eee;
-  border: 2px solid #aaa;
+  background-color: #eeeeee;
+  border: 2px solid #aaaaaa;
   border-radius: 5px;
   /*-moz-box-shadow: -1px -1px 0px #aaa;*/
 
@@ -82,9 +45,19 @@ button:active {
   border: 2px solid #000;
   background-color: #aaa;
 }
-.shp_upload {
-  margin-bottom: 24px;
+.layerset {
+  background-color: #cccccc;
 }
-.shp_upload p {
-  margin: 0;
+.layerset .layerblock {
+  margin: 3px;
+  background-color: #fcfcfc;
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+.layerset .layerblock div {
+  padding-left: 24px;
+  padding-right: 24px;
+}
+.layerset .layerblock .layernotes {
+  overflow: auto;
 }

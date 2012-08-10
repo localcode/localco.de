@@ -19,7 +19,7 @@ urlpatterns = patterns('',
     (r'^webfinches/upload/$', 'webfinches.views.upload'),
     (r'^webfinches/review/$', 'webfinches.views.review'),
     (r'^webfinches/browse/$', 'webfinches.views.browse'),
-    #(r'^webfinches/configure/$', 'webfinches.views.configure'),
+    (r'^webfinches/configure/$', 'webfinches.views.configure'),
     #(r'^webfinches/user/$', 'webfinches.views.user'),
 
 	# Login / logout.
