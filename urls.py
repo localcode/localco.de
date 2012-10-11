@@ -18,13 +18,13 @@ urlpatterns = patterns('',
     #(r'^webfinches/login/create_account/$', 'webfinches.views.create_account'),
     (r'^webfinches/upload/$', 'webfinches.views.upload'),
     (r'^webfinches/review/$', 'webfinches.views.review'),
-    #(r'^webfinches/browse/$', 'webfinches.views.browse'),
+    (r'^webfinches/browse/$', 'webfinches.views.browse'),
     (r'^webfinches/configure/$', 'webfinches.views.configure'),
+    (r'^webfinches/create_sites/$', 'webfinches.views.create_sites'),
     #(r'^webfinches/user/$', 'webfinches.views.user'),
 
     # Login / logout.
-    #(r'^login/$', login, {'template_name': 'registration/login.html'}),
-    (r'^webfinches/login/$', login, {'template_name': 'registration/login.html'}),
+    (r'^login/$', login, {'template_name': 'registration/login.html'}),
     (r'^logout/$', 'django.contrib.auth.views.logout' ),
 
     # Web portal.
