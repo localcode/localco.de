@@ -2,7 +2,7 @@ import os
 path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 my_path = '/Users/carlos/projects' # Change this to the local path
 
-if path != my_path: # If i'm running it locally
+if path == my_path: # If i'm running it locally
     from mysettings import *
 
 else: # If i'm running it on the server
@@ -57,21 +57,25 @@ else: # If i'm running it on the server
     
     # Absolute filesystem path to the directory that will hold user-uploaded files.
     # Example: "/home/media/media.lawrence.com/media/"
-    MEDIA_ROOT = '/Library/WebServer/Documents/media/localcode/' # LOCAL DEVELOPMENT
+    #MEDIA_ROOT = '/Library/WebServer/Documents/media/localcode/' # LOCAL DEVELOPMENT
     #MEDIA_ROOT = '/home/localcode/webapps/media' # WEBFACTION DEPLOYMENT
+    MEDIA_ROOT = '/var/www/localcode.berkeley.edu/media' # Berkeley Server
     
     # URL that handles the media served from MEDIA_ROOT. Make sure to use a
     # trailing slash.
     # Examples: "http://media.lawrence.com/media/", "http://example.com/media/"
-    MEDIA_URL = 'http://localhost/media/localcode/'
-    #MEDIA_URL = 'http://localco.de/media/'
+    #MEDIA_URL = 'http://localhost/media/localcode/'
+    MEDIA_URL = 'http://localcode.berkeley.edu/media/' # Berkeley Server
+    
     
     # Absolute path to the directory static files should be collected to.
     # Don't put anything in this directory yourself; store your static files
     # in apps' "static/" subdirectories and in STATICFILES_DIRS.
     # Example: "/home/media/media.lawrence.com/static/"
-    STATIC_ROOT = '/Library/WebServer/Documents/static/localcode/' # LOCAL DEVELOPMENT
+    #STATIC_ROOT = '/Library/WebServer/Documents/static/localcode/' # LOCAL DEVELOPMENT
     #STATIC_ROOT = '/home/localcode/webapps/static' # WEBFACTION DEPLOYMENT
+    STATIC_ROOT = '/var/www/localcode.berkeley.edu/localcode/static' # Berkeley DEVELOPMENT
+    
     
     # URL prefix for static files.
     # Example: "http://media.lawrence.com/static/"
