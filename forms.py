@@ -5,7 +5,7 @@ from django import forms
 from django.forms import widgets
 from django.forms.formsets import formset_factory
 
-from webfinches.models import DataFile, DataLayer, UploadEvent
+from models import DataFile, DataLayer, UploadEvent
 
 
 class ZipUploadForm(forms.ModelForm):
