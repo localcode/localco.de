@@ -1,6 +1,6 @@
 from localcode.views import *
 from django.conf.urls.defaults import patterns, include, url
-#import webfinches #, islands #
+import webfinches #, islands
 from django.contrib import admin
 from django.contrib.auth.views import login, logout
 admin.autodiscover()
@@ -14,13 +14,13 @@ urlpatterns = patterns('',
     #(r'^tools/$', 'localcode.views.tools'),
 
     # webfinches
-    (r'^webfinches/$', 'views.index'),
+    (r'^webfinches/$', 'webfinches.views.index'),
     #(r'^webfinches/login/create_account/$', 'webfinches.views.create_account'),
-    (r'^webfinches/upload/$', 'views.upload'),
-    (r'^webfinches/review/$', 'views.review'),
-    (r'^webfinches/browse/$', 'views.browse'),
-    (r'^webfinches/configure/$', 'views.configure'),
-    (r'^webfinches/create_sites/$', 'views.create_sites'),
+    (r'^webfinches/upload/$', 'webfinches.views.upload'),
+    (r'^webfinches/review/$', 'webfinches.views.review'),
+    (r'^webfinches/browse/$', 'webfinches.views.browse'),
+    (r'^webfinches/configure/$', 'webfinches.views.configure'),
+    (r'^webfinches/create_sites/$', 'webfinches.views.create_sites'),
     #(r'^webfinches/user/$', 'webfinches.views.user'),
 
     # Login / logout.
