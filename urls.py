@@ -1,6 +1,6 @@
 from localcode.views import *
 from django.conf.urls.defaults import patterns, include, url
-import webfinches #, islands
+#import webfinches #, islands
 from django.contrib import admin
 from django.contrib.auth.views import login, logout
 admin.autodiscover()
