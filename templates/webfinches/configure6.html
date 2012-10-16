@@ -1,0 +1,76 @@
+{% extends 'webfinches/review.html' %}
+{% load static %}
+
+{% block css %}
+        <link rel="stylesheet" href="{% get_static_prefix %}css/home.css" type="text/css"/>
+        <link rel="stylesheet" href="{% get_static_prefix %}css/layers.css" type="text/css"/>
+{% endblock %}
+
+{% block subtitle %}
+    Build Site Configurations
+{% endblock %}
+
+{% block layernavs %}
+            <li><a href="/webfinches"><div class="sitenav">Browse Data</div></a></li>
+{% endblock %}
+
+{% block content %}
+    
+<form id="layerreviewer" action="/webfinches/review/" method="POST" enctype="multipart/form-data">
+
+        <br /> <br />
+        <p> Set Radius: <input type="text" name="Set Radius"/></p>
+        <p align="left"><input type="submit" value="Upload New Configuration" /></p>
+</form>
+    
+<!--    I need to Add the name of the field next to the field.... maybe use the column/row class i did in layer.css-->
+
+        <div>
+            <div align="right" class="sitelist_column"><h1>Attributes</h1></div>
+            <div class="sitelist_column"><h1>Layers</h1></div>
+        </div>
+
+{% if layers %}
+        
+<div id="layerblock-{{layer.id}}" class="layerblock" >
+
+
+        <div class="sitelist_column">
+            {% for layer in layers %}
+                <div align="right" class="sitelist_row"> Name: </div>
+                <div align="right" class="sitelist_row"> SRS: </div>
+                <div align="right" class="sitelist_row"> Geometry Type: </div>
+                <div align="right" class="sitelist_row"> Tags: </div>
+                <div align="right" class="sitelist_row"> Site Layer: </div> 
+                <div align="right" class="sitelist_row"> Other Layers: </div> 
+
+                    {% endfor %}
+        </div>
+
+        <div class="sitelist_column">
+            {% for layer in layers %}
+                <div class="sitelist_row">{{layer.name}} </div>
+                <div class="sitelist_row">{{layer.srs}} </div>
+                <div class="sitelist_row">{{layer.geometry_type}} </div>
+                <div class="sitelist_row">{{layer.tags}} </div>
+                <div class="sitelist_row">  <input type="checkbox"/> </div>
+                <div class="sitelist_row">  <input type="checkbox"/> </div>
+                    {% endfor %}
+        </div>
+
+</div>
+
+{% endif %}
+
+
+
+
+
+{% endblock %}
+
+
+{% block scripts %}
+  <script type="text/javascript" src="{% get_static_prefix %}js/jquery-1.6.2.min.js"></script>
+  <script type="text/javascript" src="{% get_static_prefix %}js/jquery-ui-1.8.16.custom.min.js"></script>
+  <script type="text/javascript" src="{% get_static_prefix %}js/siteBuilder.js"></script>
+{% endblock %}

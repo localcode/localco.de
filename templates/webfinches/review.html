@@ -1,0 +1,21 @@
+{% extends "webfinches/upload.html" %}
+
+{% block jslibs %}
+{% endblock %}
+
+{% block subtitle %}
+  Review Data Layers
+{% endblock %}
+
+{% block content %}
+              <form id="layerreviewer" action="/webfinches/review/" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ formset.management_form }}
+                <input type="submit" value="Upload New Configuration" />
+                  {% for form in formset %}
+                  <div class="layer">
+                    {{ form.as_p }}
+                  </div>
+                  {% endfor %}
+              </form>
+{% endblock %}

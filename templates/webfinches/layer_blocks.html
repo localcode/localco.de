@@ -1,0 +1,9 @@
+<div id="layerblock-{{layer.id}}" class="layerblock" > 
+    <div class="layername">Layer: {{layer.name}}</div>
+    <div class="layernotes">Notes: {{layer.notes}}</div>
+    <div class="layersrs">SRS: {{layer.srs}}</div>
+    <div class="layergeomtype">Geometry Type: {{layer.geometry_type}}</div>
+    <div class="layertags">Tags: {{layer.tags}}</div>
+    <div class="layersite">Site Layer: <input name="site_layer" type="checkbox" id="site_layer[ ]" value={{ layer.id }}></div>
+    <div class="layerother">Other Layers: <input name="other_layers" type="checkbox" id="other_sites[ ]" value={{ layer.id }}></div>
+</div>

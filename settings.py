@@ -1,23 +1,24 @@
 import os 
 path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-my_path = '/Users/carlos/projects' # Change this to the local path
+my_path = '/Users/carlos/projects/localco.de' # Change this to the local path
 
 if path == my_path: # If i'm running it locally
     from mysettings import *
+    
 
 else: # If i'm running it on the server
     # Django settings for localcode project.
     import os
     from pw import PW
-    
-    DEBUG = True
+
+    DEBUG = False
     TEMPLATE_DEBUG = DEBUG
     
     ADMINS = (
             ('Nicholas de Monchaux', 'demonchaux@berkeley.edu'),
             ('Benjamin Golder', 'benjamin.j.golder@gmail.com'),
             ('Carlos Sandoval', 'ce.sandoval@berkeley.edu'),
-    )
+    )  
     
     MANAGERS = ADMINS
     
@@ -164,7 +165,7 @@ else: # If i'm running it on the server
     
     AUTH_PROFILE_MODULE = 'webfinches.UserProfile'
     ACCOUNT_ACTIVATION_DAYS = 2 # Any value. 
-    EMAIL_HOST='smtp.gmail.com'
+    EMAIL_HOST='localhost' #'smtp.gmail.com'
     EMAIL_PORT=587
     EMAIL_HOST_USER='user@example.com'
     EMAIL_HOST_PASSWORD='secret'

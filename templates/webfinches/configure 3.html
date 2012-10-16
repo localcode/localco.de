@@ -1,0 +1,37 @@
+{% extends 'webfinches/index.html' %}
+{% load static %}
+
+{% block jslibs %}
+
+{% endblock %}
+
+{% block subtitle %}
+    Configure Data Layers
+{% endblock %}
+
+{% block layernavs %}
+            <li><a href="/webfinches"><div class="sitenav">Browse Data</div></a></li>
+{% endblock %}
+
+{% block content %}
+
+<!--This is just a Place holder till I figure out how to display the proper layer information and whatever else we need...
+Then we need to be able to create our own site configurations....
+The first would be get and after choices have been made post....
+-->
+
+              <form id="layerreviewer" action="/webfinches/review/" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ formset.management_form }}
+                <input type="submit" value="Upload New Configuration" />
+                  {% for form in formset %}
+                  <div class="layer">
+                    {{ form.as_p }}
+                  </div>
+                  {% endfor %}
+                </table>
+              </form>
+{% endblock %}
+
+             
+

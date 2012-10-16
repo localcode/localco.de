@@ -1,0 +1,63 @@
+{% extends 'webfinches/review.html' %}
+{% load static %}
+
+{% block css %}
+        <link rel="stylesheet" href="{% get_static_prefix %}css/home.css" type="text/css"/>
+        <link rel="stylesheet" href="{% get_static_prefix %}css/layers.css" type="text/css"/>
+{% endblock %}
+
+{% block subtitle %}
+    Build Site Configurations
+{% endblock %}
+
+{% block layernavs %}
+            <li><a href="/webfinches"><div class="sitenav">Browse Data</div></a></li>
+{% endblock %}
+
+{% block content %}
+    
+<form id="layerreviewer" action="/webfinches/review/" method="POST" enctype="multipart/form-data">
+
+        <br /> <br />
+        <p> Set Radius: <input type="text" name="Set Radius"/></p>
+        <p align="left"><input type="submit" value="Upload New Configuration" /></p>
+</form>
+
+        <div>
+            <div class="sitelist_column"><h1>Layers</h1></div>
+            <div class="sitelist_column"><h1>Site Layer</h1></div>
+            <div class="sitelist_column"><h1>Other Sites</h1></div>
+        </div>
+
+    
+    {% if layers %}
+    
+<!--    I need to Add the name of the field next to the field.... maybe use the column/row class i did in layer.css-->
+
+<div class="layerset col">
+      {% for layer in layers %}
+        {% include "webfinches/layer_blocks.html" %}
+      {% endfor %}
+    </div>
+    
+    <div class="sitelist_column">
+        {% for item in layers %}
+            <div align="left" class="layerlist_row"> <input type="checkbox"/></div> 
+                {% endfor %}
+    </div>
+    {% endif %}
+    <div class="layerset layerconfig col">
+    </div>
+
+
+
+
+
+
+{% endblock %}
+
+{% block scripts %}
+  <script type="text/javascript" src="{% get_static_prefix %}js/jquery-1.6.2.min.js"></script>
+  <script type="text/javascript" src="{% get_static_prefix %}js/jquery-ui-1.8.16.custom.min.js"></script>
+  <script type="text/javascript" src="{% get_static_prefix %}js/siteBuilder.js"></script>
+{% endblock %}

@@ -1,0 +1,70 @@
+{% extends 'webfinches/index.html' %}
+{% load static %}
+
+{% block jslibs %}
+
+{% endblock %}
+
+{% block subtitle %}
+    Configure Data Layers
+{% endblock %}
+
+{% block layernavs %}
+            <li><a href="/webfinches"><div class="sitenav">Browse Data</div></a></li>
+{% endblock %}
+
+{% block content %}
+
+                <form>
+
+<!--header-->
+
+        <div>
+            <div class="layerlist_column"><h1>Layers</h1></div>
+            <div class="layerlist_column"><h1>Projection</h1></div>
+            <div align="center" class="layerlist_column"><h1>EPSG Code</h1></div>
+            <div align="center" class="layerlist_column"><h1>Site Layer</h1></div>
+        </div>
+
+<!--end of header-->
+
+        <div class="layerlist_column">
+            {% for item in layers %}
+                <div class="layerlist_row"> {{item}} </div> 
+                    {% endfor %}
+        </div>
+
+        <div class="layerlist_column">
+            {% for item in layers %}
+                <div class="layerlist_row"> {{item}} </div>
+                    {% endfor %}
+        </div>
+
+        <div class="layerlist_column">
+            {% for item in layers %}
+                <div align="center" class="layerlist_row">  <input type="text" name="Set EPSG Code"/> </div>
+                   {% endfor %}
+        </div>
+
+        <div class="layerlist_column">
+            {% for item in layers %}
+                <div align="center" class="layerlist_row"> <input type="checkbox"/></div> 
+                    {% endfor %}
+        </div>
+
+
+        <br /> <br />
+        <p> Set Radius: <input type="text" name="Set Radius"/></p>
+        <p align="left"><input type="submit" value="Configure" /></p>
+
+
+        </form>
+
+{% endblock %}
+
+
+{% block scripts %}
+  <script type="text/javascript" src="{% get_static_prefix %}js/jquery-1.6.2.min.js"></script>
+  <script type="text/javascript" src="{% get_static_prefix %}js/jquery-ui-1.8.16.custom.min.js"></script>
+  <script type="text/javascript" src="{% get_static_prefix %}js/loadPage.js"></script>
+{% endblock %}
