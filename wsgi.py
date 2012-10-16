@@ -19,6 +19,8 @@ import sys
 path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 if path not in sys.path:
     sys.path.append(path)
+#sys.path.append('/var/www/localcode.berkeley.edu/localcode')
+sys.path.append(os.path.join(path, 'localcode'))
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "localcode.settings")
 
