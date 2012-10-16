@@ -14,13 +14,13 @@ urlpatterns = patterns('',
     #(r'^tools/$', 'localcode.views.tools'),
 
     # webfinches
-    (r'^webfinches/$', 'webfinches.views.index'),
+    (r'^webfinches/$', 'views.index'),
     #(r'^webfinches/login/create_account/$', 'webfinches.views.create_account'),
-    (r'^webfinches/upload/$', 'webfinches.views.upload'),
-    (r'^webfinches/review/$', 'webfinches.views.review'),
-    (r'^webfinches/browse/$', 'webfinches.views.browse'),
-    (r'^webfinches/configure/$', 'webfinches.views.configure'),
-    (r'^webfinches/create_sites/$', 'webfinches.views.create_sites'),
+    (r'^webfinches/upload/$', 'views.upload'),
+    (r'^webfinches/review/$', 'views.review'),
+    (r'^webfinches/browse/$', 'views.browse'),
+    (r'^webfinches/configure/$', 'views.configure'),
+    (r'^webfinches/create_sites/$', 'views.create_sites'),
     #(r'^webfinches/user/$', 'webfinches.views.user'),
 
     # Login / logout.
