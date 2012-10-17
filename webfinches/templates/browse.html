@@ -1,0 +1,21 @@
+{% extends "webfinches/review.html" %}
+
+{% block jslibs %}
+{% endblock %}
+
+{% block subtitle %}
+  Browse Data Layers
+{% endblock %}
+
+{% block content %}
+                <form id="layerbrowser", action="." method="POST" enctype="multipast/form-data">
+                {% csrf_token %}
+                {{ formset.management_form }}
+                <input type="submit" value="Upload New Configuration" />
+                  {% for form in formset %}
+                  <div class="layer">
+                    {{ form.as_p }}
+                  </div>
+                  {% endfor %}
+                </form>
+{% endblock %}

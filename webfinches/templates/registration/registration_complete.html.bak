@@ -1,0 +1,27 @@
+{% extends 'webfinches/index.html' %}
+{% load static %}
+
+{% block jslibs %}
+
+{% endblock %}
+
+{% block subtitle %}
+    Create an Account
+{% endblock %}
+
+{% block content %}
+
+		<p><h1>Registration Complete.</h1></p>
+		<p>A confirmation Email has been sent to activate your account.</p>
+		
+		
+{% endblock %}
+					
+             
+
+
+{% block scripts %}
+  <script type="text/javascript" src="{% get_static_prefix %}js/jquery-1.6.2.min.js"></script>
+  <script type="text/javascript" src="{% get_static_prefix %}js/jquery-ui-1.8.16.custom.min.js"></script>
+  <script type="text/javascript" src="{% get_static_prefix %}js/loadPage.js"></script>
+{% endblock %}

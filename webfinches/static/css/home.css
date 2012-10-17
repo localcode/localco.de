@@ -1,0 +1,54 @@
+body {
+  background-color: #FCFCFC;
+}
+#header {
+  padding-top: 72px;
+  padding-left: 24px;
+  height: 48px;
+  width: 100%;
+}
+#pagetitle {
+  font-weight: bold;
+  font-size: 24px;
+}
+
+#nav {
+  height: 48px;
+  width: 100%;
+  border-top: 1px solid #CCC;
+  border-bottom: 1px solid #CCC;
+}
+#nav li {
+  list-style-type: none;
+}
+#nav a {
+  text-decoration: none;
+  color: #000;
+}
+.sitenav {
+  padding: 12px 24px 12px 24px;
+  float: left;
+}
+.sitenav:hover {
+  color: #FCFCFC;
+  background-color: #000;
+}
+
+#content {
+  margin-top: 48px;
+  height: 600px;
+}
+#intro {
+  font-weight: bold;
+  padding: 0px 24px 0px 24px;
+  margin-bottom: 24px;
+}
+.col {
+  float: left;
+  width: 408px;
+  padding: 0px 24px 0px 24px;
+}
+p {
+  margin-bottom: 24px;
+}
+

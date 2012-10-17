@@ -1,0 +1,28 @@
+{% extends 'webfinches/index.html' %}
+{% load static %}
+
+{% block jslibs %}
+
+{% endblock %}
+
+{% block subtitle %}
+    Logout
+{% endblock %}
+
+{% block content %}
+
+		<p><h1>You have successfully logged out.</h1></p>
+		<form>
+				<a href="/login">Login Again</a> 
+		</form>
+		
+{% endblock %}
+					
+             
+
+
+{% block scripts %}
+  <script type="text/javascript" src="{% get_static_prefix %}js/jquery-1.6.2.min.js"></script>
+  <script type="text/javascript" src="{% get_static_prefix %}js/jquery-ui-1.8.16.custom.min.js"></script>
+  <script type="text/javascript" src="{% get_static_prefix %}js/loadPage.js"></script>
+{% endblock %}

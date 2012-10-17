@@ -1,0 +1,81 @@
+{% extends 'webfinches/index.html' %}
+{% load static %}
+
+{% block jslibs %}
+
+{% endblock %}
+
+{% block subtitle %}
+    Download Sites
+{% endblock %}
+
+{% block content %}
+		
+		<form>
+				
+				
+				<!--header-->
+				<div>
+					<div><h1>Download Individual Sites</h1></div>
+					<div class="sitelist_column"><h1>Sites</h1></div>
+					<div class="sitelist_column"><h1>Selected Sites</h1></div>
+				</div>
+				
+				<!--end of header-->
+			
+			<div class="sitelist_column">
+			{% for item in individual_sites %}
+					<div class="sitelist_row"> {{item}} </div> 
+				  	{% endfor %}
+			</div>
+						
+			<div class="sitelist_column">
+			{% for item in individual_sites %}
+				  <div class="sitelist_row"> <input type="checkbox"/></div> 
+				  {% endfor %}
+			</div>
+			
+		<div class="shp_upload">
+                    {{ form.as_p }}
+                  </div>
+                  
+				<br /> <br />
+				<p align="left"><input type="submit" value="Download" /></p>
+				
+				<div><h1>Download All sites:</h1></div>
+				<div> 
+					{% for item in zip_file %}
+					{{item}}: <input type="submit" value="Download"/></div>
+					{% endfor %}
+				
+				<div> <h1>API Download:</h1></div>
+				<div> 
+					{% for item in api_download %}
+					{{item}}:
+					{% endfor %}
+				</div>
+
+			
+		</form>
+		
+		
+						<!--<div>
+					{% for item in projections %}
+				  <div> {{item}} </div> 
+				  {% endfor %}-->
+				  		
+<!--				<div class="show-layers">
+					{% for item in layers %}
+				  <div> {{item}} </div> 
+				  {% endfor %}
+				</div>-->
+{% endblock %}
+					
+             
+
+
+{% block scripts %}
+  <script type="text/javascript" src="{% get_static_prefix %}js/jquery-1.6.2.min.js"></script>
+  <script type="text/javascript" src="{% get_static_prefix %}js/jquery-ui-1.8.16.custom.min.js"></script>
+  <script type="text/javascript" src="{% get_static_prefix %}js/loadPage.js"></script>
+{% endblock %}

@@ -1,0 +1,54 @@
+#pagesubtitle {
+  margin-left: 24px;
+  font-size: 18px;
+  color: #666;
+}
+#search {
+  padding-left: 24px;
+  border: 1px solid #CCC;
+  font-weight: bold;
+  background-color: #fff;
+}
+#layerlist,
+#fileupload-content {
+  background-color: #EEE;
+  overflow: auto;
+  height: 600px;
+}
+button {
+  background-color: #eee;
+  border: 2px solid #aaa;
+  border-radius: 5px;
+  /*-moz-box-shadow: -1px -1px 0px #aaa;*/
+
+  /*-webkit-box-shadow: -1px -1px 0px #aaa;*/
+
+  /*box-shadow: -1px -1px 0px #aaa;*/
+
+}
+button:hover {
+  background-color: #ddd;
+  border: 2px solid #888;
+  /*-moz-box-shadow: 0 0 2px #E80070;*/
+
+  /*-webkit-box-shadow: 0 0 2px #E80070;*/
+
+  /*box-shadow: 0 0 2px #E80070;*/
+
+}
+button:active {
+  /*color: #FF0060;*/
+
+  /*border: 2px solid #FF0060;*/
+
+  color: #000;
+  border: 2px solid #000;
+  background-color: #aaa;
+}
+.shp_upload {
+  margin-bottom: 24px;
+}
+.shp_upload p {
+  margin: 0;
+}
+

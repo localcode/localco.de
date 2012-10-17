@@ -1,0 +1,46 @@
+{% extends 'webfinches/index.html' %}
+{% load static %}
+
+{% block jslibs %}
+
+{% endblock %}
+
+{% block subtitle %}
+    Login
+{% endblock %}
+
+{% block content %}
+
+		<form>		
+		
+		<table>
+		
+		<tr>
+				<th>Login Information</th>
+		</tr>
+		<tr>
+				<td>Username:</td>
+				<td><input type="text"></td>
+		</tr>
+		<tr>
+			  <td>Password:</td>
+			  <td><input type="password"></td>
+		</tr>
+		
+		</table> 
+
+				<div align="left"><input type="submit" value="Login" /></div>	
+				<a href="/webfinches/login/create_account">Create an Account</a> 
+		
+		</form>
+		
+{% endblock %}
+					
+             
+
+
+{% block scripts %}
+  <script type="text/javascript" src="{% get_static_prefix %}js/jquery-1.6.2.min.js"></script>
+  <script type="text/javascript" src="{% get_static_prefix %}js/jquery-ui-1.8.16.custom.min.js"></script>
+  <script type="text/javascript" src="{% get_static_prefix %}js/loadPage.js"></script>
+{% endblock %}
