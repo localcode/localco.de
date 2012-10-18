@@ -208,7 +208,7 @@ def create_sites(request):
         # This gives us the selected site and perform distance queries.
         site_configurations_selected = SiteConfiguration.objects.get(id=configuration_id)
         srs = site_configurations_selected.srs
-        radius = site_configurations_selected.radius
+        radius = site_configurations_selected.radius #*10
         
         site_layer = site_configurations_selected.site_layer
         other_layers = site_configurations_selected.other_layers.all()
@@ -219,8 +219,6 @@ def create_sites(request):
         layer_site_fields = layer_site_layer.fields
         site_field_values = [[geom.get(field) for field in layer_site_fields] for geom in layer_site_layer]
         field_attributes = [dict(itertools.izip(layer_site_fields, field_value)) for field_value in site_field_values]
-        print field_attributes
-        site_attributes_dict = [dict([("type","Feature"), ("properties", attribute)])for attribute in field_attributes]
         site_centroids = [ ]
         site_json = [ ]
         site_dicts = [ ]
@@ -232,34 +230,25 @@ def create_sites(request):
                 # but I think this gets the reprojected geom?
                 #Get the centroid to calculate distances.
                 site_centroids.append(get_centroid(polygon))
-        geom_json_dict = [dict([("geometry", geom)])for geom in site_json]
-
         
-        test = { }
-        t = [ ]
-        m = -1
-        for g in site_json:
-            m += 1
-            test['geometry'] = g
-            test['type'] = 'Feature'
-            for z in field_attributes:
-                test['properties'] = z
-            #test['properties'] = field_attributes[m]
-            t.append(test)
-
-            print test
-        print t
-        site_json_dicts = list(itertools.izip(geom_json_dict,site_attributes_dict))
-        #print site_json_dicts
-        list_site_json_dicts = [list(itertools.chain(site_json_dict)) for site_json_dict in site_json_dicts]
-        for site_json_dictionary in list_site_json_dicts:
-            site_geojson_dict = {"type": "FeatureCollection", "features":site_json_dictionary}
+        site_json_dicts = [ ]
+        site_num = -1
+        for geom in site_json:
+            geom_json_dicts = { }
+            site_num += 1
+            geom_json_dicts['geometry'] = geom
+            geom_json_dicts['type'] = 'Feature'
+            geom_json_dicts['properties'] = field_attributes[site_num]
+            site_json_dicts.append(geom_json_dicts)
+        for site_json_dictionary in site_json_dicts:
+            site_geojson_dict = {"type": "FeatureCollection", "features":[ ]}
+            site_geojson_dict['features'].append( site_json_dictionary )
             site_dict = {"type": "Layer", "name":"site", "contents":site_geojson_dict}
-            # this gives me a list of all the site geometries...
             site_dicts.append(site_dict)
-        
         ##################################
         # maybe I don't need to get the centroid, I can do queries with polygons?
+        
+        # I also need to add something to be able to add other_sites... sites close to site layer!!!
         
         def get_geo_json(site_dicts, site_centroids, site_number, other_layers):
             site_geojson = site_dicts[site_number]
@@ -270,7 +259,6 @@ def create_sites(request):
                     path_other_layer = other_layer.get_browsing_data()['pathy']
                     ds_site_layer = DataSource( path_other_layer )
                     layer_other_layer = ds_site_layer[0]
-                    other_layer_fields = layer_other_layer.fields
                     other_layers_features = [ ]
                     
                     features_dict = {}
@@ -288,36 +276,51 @@ def create_sites(request):
                         if distance <= radius:
                             other_layers_features.append(features_dict[centroid])
                     other_layers_query.append(other_layers_features)
-                
+                    
                 # Create dictionaries with the GDAL API
                 other_layers_dicts = [ ]
                 if len(other_layers_query) > 0:
+                    layers_json = [ ]
                     for other_layers in other_layers_query:
                         if len(other_layers)>0:
                             other_layer_name = other_layers[0].layer_name
                             fields = other_layers[0].fields
                             other_field_values = [[geom.get(field) for field in fields] for geom in other_layers]
-                            other_field_attributes = [dict(itertools.izip(other_layer_fields, field_value)) for field_value in other_field_values]
-                            other_attributes_dict = [dict([("type","feature"), ("properties", attribute)])for attribute in other_field_attributes]
+                            other_field_attributes = [dict(itertools.izip(fields, field_value)) for field_value in other_field_values]
                             other_json = [ ]
-                            other_dicts = [ ]
                             for feature in other_layers:
                                 if feature.geom.srs:
                                     polygon = feature.geom.transform(srs,True)
                                     other_json.append(polygon.json)
-                                other_json_dict = [dict([("geometry", geom)])for geom in other_json]
-                            other_json_dicts = list(itertools.izip(other_json_dict, other_attributes_dict))
-                            list_other_json_dicts = [list(itertools.chain(other_json_dict)) for other_json_dict in other_json_dicts]
-                            for othr_json_dict in list_other_json_dicts:
-                                other_geojson_dict = {"type": "Feature Collection", "features":othr_json_dict}
-                                other_dict = {"type": "Layer", "name":other_layer_name, "contents":other_geojson_dict}
-                                other_dicts.append(other_dict)
-                            other_layers_dicts.append(other_dicts)
-                
-                all_layers = list(itertools.chain.from_iterable(other_layers_dicts))
-                all_layers.insert(0, site_geojson) # Add the site_geoJson to the layers
-                geoJSON = {"layers":all_layers, "type":"LayerCollection"}
-                return geoJSON
+                            
+                            other_json_dict = [ ]
+                            other_num = -1
+                            for geom in other_json:
+                                geom_other = { }
+                                other_num += 1
+                                geom_other['geometry'] = geom
+                                geom_other['type'] = 'Feature'
+                                geom_other['properties'] = other_field_attributes[other_num]
+                                other_json_dict.append(geom_other)
+                            
+                            test_geojson_dict = {"type": "Feature Collection", "features":other_json_dict}
+                            test_other_dict = {"type": "Layer", "name":other_layer_name, "contents":test_geojson_dict}
+                            layers_json.append(test_other_dict)
+                            
+                    '''
+                    # this gets the number of geometries per site. 
+                    totals = [ ]
+                    for i in layers_json:
+                        if len(layers_json) == 1:
+                            totals.append(len(i['contents']['features']))
+                            #print len(i['contents']['features'])
+                        else:
+                            totals.append(len(i['contents']['features']))
+                    print sum(totals)
+                    '''
+                    layers_json.insert(0, site_geojson) # Add the site_geoJson to the layers
+                    geoJSON = {"layers":layers_json, "type":"LayerCollection"}
+                    return geoJSON
                 
         if len(other_layers) > 0:
             i = 0
@@ -357,7 +360,7 @@ def create_sites(request):
                 geoJSON = {"layers":[site], "type":"LayerCollection"}
                 i += 1
                 # Save SiteSets
-                #print geoJSON
+                print geoJSON
                 sites_set = SiteSet(author = user, configuration = site_configurations_selected,
                                     geoJson = geoJSON, name = str(site_configurations_selected.name) + ' / ' + str(i)
                                     + ' / ' + str(site_configurations_selected.date_added))
