@@ -225,12 +225,12 @@ def create_sites(request):
         for feature in layer_site_layer:
             if feature.geom.srs:
                 polygon = feature.geom.transform(srs,True)
-                site_json.append(polygon.json)
+                site_json.append(json.loads(polygon.json))
                 # it used to be append(feature.geom.json)
                 # but I think this gets the reprojected geom?
                 #Get the centroid to calculate distances.
                 site_centroids.append(get_centroid(polygon))
-        
+                
         site_json_dicts = [ ]
         site_num = -1
         for geom in site_json:
@@ -291,7 +291,7 @@ def create_sites(request):
                             for feature in other_layers:
                                 if feature.geom.srs:
                                     polygon = feature.geom.transform(srs,True)
-                                    other_json.append(polygon.json)
+                                    other_json.append(json.loads(polygon.json))
                             
                             other_json_dict = [ ]
                             other_num = -1
@@ -303,9 +303,9 @@ def create_sites(request):
                                 geom_other['properties'] = other_field_attributes[other_num]
                                 other_json_dict.append(geom_other)
                             
-                            test_geojson_dict = {"type": "Feature Collection", "features":other_json_dict}
-                            test_other_dict = {"type": "Layer", "name":other_layer_name, "contents":test_geojson_dict}
-                            layers_json.append(test_other_dict)
+                            other_geojson_dict = {"type": "Feature Collection", "features":other_json_dict}
+                            other_dict = {"type": "Layer", "name":other_layer_name, "contents":other_geojson_dict}
+                            layers_json.append(other_dict)
                             
                     '''
                     # this gets the number of geometries per site. 
@@ -326,15 +326,17 @@ def create_sites(request):
             i = 0
             for i in range(len(site_centroids)):
                 geoJSON = get_geo_json(site_dicts, site_centroids, i, other_layers)
+                final_geoJSON = json.dumps(geoJSON)
+                print final_geoJSON
+                
                 i += 1
                 
-                print geoJSON
                 #######################
                 # Now... instead of writing the geoJsons as texts, I need to figure out a way to save them as .txt files and upload them!!
                 
                 # Save SitSets
                 sites_set = SiteSet(author = user, configuration = site_configurations_selected,
-                                    geoJson = geoJSON, name = str(site_configurations_selected.name) + ' / ' + str(i)
+                                    geoJson = final_geoJSON, name = str(site_configurations_selected.name) + ' / ' + str(i)
                                     + ' / ' + str(site_configurations_selected.date_added))
                 #sites_set.save() # We create the object
                 
@@ -347,22 +349,22 @@ def create_sites(request):
                 # then just retrieve the selected one???
                 # for other_layer in other_layers:
                 #    configuration.other_layers.add(other_layer)
+                
                 #configuration.save() # Re-save the SiteConfiguration
-            #print json.dumps(geoJSON)
-            #print geoJSON
-            #print (str(geoJSON))
-            #print (json.dumps({'layers': 'type'}))
+
             return HttpResponseRedirect('/webfinches/create_sites/')
             
         else: # if there's only a site layer and no other_layers, create a geoJSON dict for a single layer.
             i = 0
             for site in site_dicts:
                 geoJSON = {"layers":[site], "type":"LayerCollection"}
+                final_geoJSON = json.dumps(geoJSON)
+                print final_geoJSON
+                
                 i += 1
                 # Save SiteSets
-                print geoJSON
                 sites_set = SiteSet(author = user, configuration = site_configurations_selected,
-                                    geoJson = geoJSON, name = str(site_configurations_selected.name) + ' / ' + str(i)
+                                    geoJson = final_geoJSON, name = str(site_configurations_selected.name) + ' / ' + str(i)
                                     + ' / ' + str(site_configurations_selected.date_added))
                 #sites_set.save() # We create the object
 
