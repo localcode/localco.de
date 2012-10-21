@@ -1,0 +1,45 @@
+{% extends 'webfinches/review.html' %}
+{% load static %}
+
+{% block css %}
+        <link rel="stylesheet" href="{% get_static_prefix %}css/home.css" type="text/css"/>
+        <link rel="stylesheet" href="{% get_static_prefix %}css/layers.css" type="text/css"/>
+{% endblock %}
+
+{% block subtitle %}
+    Get Sites
+{% endblock %}
+
+{% block layernavs %}
+            <li><a href="/webfinches"><div class="sitenav">Browse Data</div></a></li>
+{% endblock %}
+
+{% block content %}
+
+<form id="sitecreator" action="/webfinches/get_sites/" method="POST" enctype="multipart/form-data">
+    
+    {% csrf_token %}
+    {{ formset.management_form }}
+
+    {% if sites_available %}
+    <div class="layerset col">
+      {% for site_set in sites_available %}
+        {% include "webfinches/site_set_blocks.html" %}
+        
+
+        
+      {% endfor %}
+
+    </div>
+{% endif %}
+
+
+</form>
+
+{% endblock %}
+
+{% block scripts %}
+  <script type="text/javascript" src="{% get_static_prefix %}js/jquery-1.6.2.min.js"></script>
+  <script type="text/javascript" src="{% get_static_prefix %}js/jquery-ui-1.8.16.custom.min.js"></script>
+  <script type="text/javascript" src="{% get_static_prefix %}js/siteBuilder.js"></script>
+{% endblock %}

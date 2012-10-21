@@ -203,6 +203,7 @@ def create_sites(request):
     user = request.user
     if request.method == 'POST': # someone is editing site configuration
         site_configurations = SiteConfiguration.objects.filter(author=user).order_by('-date_edited')
+        #site_sets = ''
         configuration_id = request.POST.get("create_sites")
         
         # This gives us the selected site and perform distance queries.
@@ -335,10 +336,10 @@ def create_sites(request):
                 # Now... instead of writing the geoJsons as texts, I need to figure out a way to save them as .txt files and upload them!!
                 
                 # Save SitSets
-                sites_set = SiteSet(author = user, configuration = site_configurations_selected,
+                sites_sets = SiteSet(author = user, configuration = site_configurations_selected,
                                     geoJson = final_geoJSON, name = str(site_configurations_selected.name) + ' / ' + str(i)
                                     + ' / ' + str(site_configurations_selected.date_added))
-                #sites_set.save() # We create the object
+                sites_sets.save() # We create the object
                 
                 # once I save this as a string, am I gonna be able to
                 # access them as a list??? Do I need to save them as m2m????
@@ -352,7 +353,7 @@ def create_sites(request):
                 
                 #configuration.save() # Re-save the SiteConfiguration
 
-            return HttpResponseRedirect('/webfinches/create_sites/')
+            return HttpResponseRedirect('/webfinches/get_sites/')
             
         else: # if there's only a site layer and no other_layers, create a geoJSON dict for a single layer.
             i = 0
@@ -363,12 +364,12 @@ def create_sites(request):
                 
                 i += 1
                 # Save SiteSets
-                sites_set = SiteSet(author = user, configuration = site_configurations_selected,
+                sites_sets = SiteSet(author = user, configuration = site_configurations_selected,
                                     geoJson = final_geoJSON, name = str(site_configurations_selected.name) + ' / ' + str(i)
                                     + ' / ' + str(site_configurations_selected.date_added))
-                #sites_set.save() # We create the object
+                sites_sets.save() # We create the object
 
-            return HttpResponseRedirect('/webfinches/create_sites/')
+            return HttpResponseRedirect('/webfinches/get_sites/')
     
     else:
         # We are browsing data
@@ -379,6 +380,23 @@ def create_sites(request):
             }
     return render_to_response(
             'webfinches/create_sites.html',
+            RequestContext(request, c),
+            )
+
+@login_required
+def get_sites(request):
+    """
+    A view to generate sites based on SiteConfigurations and Spatial Database
+    Queries
+    """
+    user = request.user
+    sites_available = SiteSet.objects.filter(author=user).order_by('-date_edited')
+
+    c = {
+            'sites_available': sites_available,
+            }
+    return render_to_response(
+            'webfinches/get_sites.html',
             RequestContext(request, c),
             )
 

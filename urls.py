@@ -21,6 +21,7 @@ urlpatterns = patterns('',
     (r'^webfinches/browse/$', 'webfinches.views.browse'),
     (r'^webfinches/configure/$', 'webfinches.views.configure'),
     (r'^webfinches/create_sites/$', 'webfinches.views.create_sites'),
+    (r'^webfinches/get_sites/$', 'webfinches.views.get_sites'),
     #(r'^webfinches/user/$', 'webfinches.views.user'),
 
     # Login / logout.

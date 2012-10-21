@@ -268,7 +268,7 @@ class SiteSet(Dated, Authored, Named): #I need to add the name of the site confi
         A SiteSet has a set of Sites
     """
 
-    configuration = models.ForeignKey('SiteConfiguration') #just quickly getting something ready for venice.
+    configuration = models.ForeignKey(SiteConfiguration) #just quickly getting something ready for venice.
     geoJson = models.TextField() # if it breaks, I need to get rid of this frome the DB
     
     def __unicode__(self):
