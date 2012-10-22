@@ -80,6 +80,7 @@ class Lookup(Named):
         abstract=True
 
 class DataFile(Dated):
+
     """Data files represent individual file uploads.
     They are used to construct DataLayers.
     """
@@ -143,15 +144,17 @@ class DataFile(Dated):
             except:
                 data['srs'] = None
         if not data['srs']:
+            data['srs'] = self.get_srs(data)
+        if not data['srs']:
             # get .prj text
             prj_path = self.path_of_part('.prj')
             if prj_path:
                 prj_text = open(prj_path, 'r').read()
                 data['notes'] = prj_text
-            data['srs'] = 'No known Spatial Reference System'
+            data['srs'] = 'No known Spatial Reference System, look for a matching srs code at http://prj2epsg.org/'
         return data
     
-    def get_srs(self):
+    def get_srs(self, data):
         """takes the prj data and sends it to the prj2epsg API.
         The API returns the srs code if found.
         """
@@ -169,10 +172,10 @@ class DataFile(Dated):
             if jres['codes']:
                 api_srs['message'] = 'An exact match was found'
                 api_srs['srs'] = int(jres['codes'][0]['code'])
+                data['srs'] = 'EPSG:' + jres['codes'][0]['code']
             else:
-                api_srs['message'] = 'No exact match was found'
-                ason_srs['srs'] = 'No known Spatial Reference System'
-        return api_srs
+                data['srs'] = None
+        return data['srs']
 
     def get_centroids(self, spatial_ref):
         '''
