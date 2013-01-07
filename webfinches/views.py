@@ -3,7 +3,11 @@ import math
 import itertools
 from itertools import *
 import json
+import tempfile, zipfile
+import cStringIO
 
+from django.http import HttpResponse
+from django.core.servers.basehttp import FileWrapper
 from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext
@@ -182,7 +186,6 @@ def configure(request):
         layers = DataLayer.objects.filter(author=user).order_by('-date_edited')
         layer = DataLayer.objects.filter(author=user)[0]
         all_tags = Tag.objects.all()
-        
     
     c = {
             'layers': layers,
@@ -230,7 +233,9 @@ def create_sites(request):
                 # it used to be append(feature.geom.json)
                 # but I think this gets the reprojected geom?
                 #Get the centroid to calculate distances.
-                site_centroids.append(get_centroid(polygon))
+                site_centroids.append(get_centroid(polygon)) 
+                # geos testing
+                #site_centroids.append(feature.geom.geos)
                 
         site_json_dicts = [ ]
         site_num = -1
@@ -265,15 +270,29 @@ def create_sites(request):
                     features_dict = {}
                     for feature in layer_other_layer:
                         #Geometries can only be transformed if they have a .prj file
+                        
+                        ###################################
+                        # I think I can use this to convert the units!!!!
+                        # just make a quick table of conversions...! and a dict.
+                        print feature.geom.srs['UNIT']
+                        # something like if unit == Meter or Metre or METER or METRE or meters or metres
+                        # I also need to test out the random prj with the geos api
                         if feature.geom.srs:
                             polygon = feature.geom.transform(srs,True)
                             #Get the centroid to calculate distances and creates a dictionary with centroids as keys, features as vals
                             features_dict[get_centroid(polygon)] = feature
+                            # Geos testing
+                            #features_dict[feature.geom.geos] = feature
                     
                     other_centroids = features_dict.keys()
                     for centroid in other_centroids:
                         # Maybe instead of doing this dist query I can turn them into GEOS geom and do distance queries, now that I have dicts.
                         distance = math.sqrt(((site.x-centroid.x)**2)+((site.y-centroid.y)**2))
+                        # This is me testing the geos API, but I need to
+                        # make sure all the projections are in meters instead!
+                        # since I have to reference the base unit before converting....
+                        # distance = D(m=g1.distance(g2)).mi
+                        #distance = site.distance(centroid) # un comment to test
                         if distance <= radius:
                             other_layers_features.append(features_dict[centroid])
                     other_layers_query.append(other_layers_features)
@@ -325,22 +344,41 @@ def create_sites(request):
                 
         if len(other_layers) > 0:
             i = 0
+            temp_json = [ ]
             for i in range(len(site_centroids)):
                 geoJSON = get_geo_json(site_dicts, site_centroids, i, other_layers)
                 final_geoJSON = json.dumps(geoJSON)
-                print final_geoJSON
+                #print final_geoJSON
                 
+                temp_json.append(final_geoJSON)
+                
+                # Save SiteSets depracated?
+                '''
                 i += 1
-                
-                #######################
-                # Now... instead of writing the geoJsons as texts, I need to figure out a way to save them as .txt files and upload them!!
-                
                 # Save SitSets
                 sites_sets = SiteSet(author = user, configuration = site_configurations_selected,
                                     geoJson = final_geoJSON, name = str(site_configurations_selected.name) + ' / ' + str(i)
                                     + ' / ' + str(site_configurations_selected.date_added))
-                sites_sets.save() # We create the object
+                sites_sets.save() # We create the object'''
                 
+            zipdata = cStringIO.StringIO() # Create the file object
+            zip_file = zipfile.ZipFile(zipdata, "a") # Create the zipfile
+            i = -1
+            for jason in temp_json: # Get individual jsons from sitesets
+                i += 1
+                zip_file.writestr(str(i) + '.txt',jason) # Write individual txt files into zip file
+            zip_file.close()
+            zipdata.flush()
+            
+            # generate the file
+            response = HttpResponse(FileWrapper(zipdata), 'rb')
+            response['Content-Disposition'] = 'attachment; filename=site_set.zip'
+            zipdata.seek(0)
+            #zipdata.close() # Deletes the temp file object
+            
+            return response # Un-comment to get the file download.'''
+            print temp_json
+            
                 # once I save this as a string, am I gonna be able to
                 # access them as a list??? Do I need to save them as m2m????
                 # add the m2m relationship with other_layers
@@ -351,25 +389,47 @@ def create_sites(request):
                 # for other_layer in other_layers:
                 #    configuration.other_layers.add(other_layer)
                 
-                #configuration.save() # Re-save the SiteConfiguration
-
-            return HttpResponseRedirect('/webfinches/get_sites/')
+            # From previous version....
+            #return HttpResponseRedirect('/webfinches/get_sites/')
             
         else: # if there's only a site layer and no other_layers, create a geoJSON dict for a single layer.
             i = 0
+            temp_json = [ ]
             for site in site_dicts:
                 geoJSON = {"layers":[site], "type":"LayerCollection"}
                 final_geoJSON = json.dumps(geoJSON)
                 print final_geoJSON
+                temp_json.append(final_geoJSON)
                 
+                # Save SiteSets depracated?
+                '''
                 i += 1
-                # Save SiteSets
                 sites_sets = SiteSet(author = user, configuration = site_configurations_selected,
                                     geoJson = final_geoJSON, name = str(site_configurations_selected.name) + ' / ' + str(i)
                                     + ' / ' + str(site_configurations_selected.date_added))
-                sites_sets.save() # We create the object
-
-            return HttpResponseRedirect('/webfinches/get_sites/')
+                sites_sets.save() # We create the object'''
+            
+            zipdata = cStringIO.StringIO() # Create the file object
+            zip_file = zipfile.ZipFile(zipdata, "a") # Create the zipfile
+            i = -1
+            for jason in temp_json: # Get individual jsons from sitesets
+                i += 1
+                zip_file.writestr(str(i) + '.txt',jason) # Write individual txt files into zip file
+            zip_file.close()
+            zipdata.flush()
+            
+            # generate the file
+            response = HttpResponse(FileWrapper(zipdata), 'rb')
+            response['Content-Disposition'] = 'attachment; filename=site_set.zip'
+            zipdata.seek(0)
+            #zipdata.close() # Deletes the temp file object
+            
+            return response # Un-comment to get the file download.'''
+            print temp_json
+            
+            # From previous version....
+            #return HttpResponseRedirect('/webfinches/get_sites/')
+            # Now I need to add a way to add other sites within range to site set
     
     else:
         # We are browsing data
@@ -382,16 +442,51 @@ def create_sites(request):
             'webfinches/create_sites.html',
             RequestContext(request, c),
             )
-
+    
 @login_required
 def get_sites(request):
     """
     A view to generate sites based on SiteConfigurations and Spatial Database
-    Queries
+    Queries. The view get the geoJson files, writes them to a file-object and
+    creates a zip file to be dowloaded
     """
+    # Might be better to just save the zip files as files on the db and then
+    # trigger the dowload?
+    
     user = request.user
+    # this is where I screw up... I'm getting all the site_sets available!
+    # get only the particular ones!
     sites_available = SiteSet.objects.filter(author=user).order_by('-date_edited')
-
+    # this ones give me the date... we can make a list and then compare whatever we
+    # had to see if they are part of the site set.
+    print sites_available[0].name[-27:] 
+    print sites_available[24].name[-27:]
+    temp_json = [ ]
+    for site in sites_available:
+        temp_json.append(site.geoJson)
+    #y = temp_zip(temp_json)
+    #temp_zip(temp_json)
+    
+    zipdata = cStringIO.StringIO() # Create the file object
+    zip_file = zipfile.ZipFile(zipdata, "a") # Create the zipfile
+    i = -1
+    for json in temp_json: # Get individual jsons from sitesets
+        i += 1
+        zip_file.writestr(str(i) + '.txt',json) # Write individual txt files into zip file
+    zip_file.close()
+    zipdata.flush()
+    ret_zip = zipdata.getvalue() # Gets the data from the temp file object before deleting it
+    #zipdata.close() # Deletes the temp file object
+    
+    # generate the file
+    response = HttpResponse(FileWrapper(zipdata), 'rb')
+    response['Content-Disposition'] = 'attachment; filename=site_set.zip'
+    zipdata.seek(0)
+    #zipdata.close() # Deletes the temp file object
+    
+    #return response # Un-comment to get the file download.
+    # periodical cleanup jobs. Django already has an admin
+    # command that must be run periodically to remove old sessions.
     c = {
             'sites_available': sites_available,
             }
@@ -406,9 +501,8 @@ def download(request):
     # configure site layers
     #layers = DataLayer.objects.all()
     #layers = layers
-
-
-    context = {
+    
+    c = {
             'individual_sites': individual_sites,
             'zip_file': zip_file,
             'api_download': api_download,
@@ -450,3 +544,25 @@ def get_centroid(polygon):
         bbox = polygon.envelope.wkt
         centroids = OGRGeometry(bbox).centroid
     return centroids
+    
+def temp_zip(data):
+    # Writes a temporary zipfile with any string input and cleans it up afterwards.
+    
+    zipdata = cStringIO.StringIO() # Create the file object
+    zip_file = zipfile.ZipFile(zipdata, "a") # Create the zipfile
+    i = -1
+    for json in data: # Get individual jsons from sitesets
+        i += 1
+        zip_file.writestr(str(i) + '.txt',json) # Write individual txt files into zip file
+    zip_file.close()
+    zipdata.flush()
+    ret_zip = zipdata.getvalue() # Gets the data from the temp file object before deleting it
+    #zipdata.close() # Deletes the temp file object
+    
+    # generate the file
+    response = HttpResponse(FileWrapper(zipdata), 'rb')
+    response['Content-Disposition'] = 'attachment; filename=site_set.zip'
+    zipdata.seek(0)
+    return response
+    
+
