@@ -230,6 +230,7 @@ def create_sites(request):
             if feature.geom.srs:
                 polygon = feature.geom.transform(srs,True)
                 site_json.append(json.loads(polygon.json))
+                #print feature.geom.srs['UNIT']
                 # it used to be append(feature.geom.json)
                 # but I think this gets the reprojected geom?
                 #Get the centroid to calculate distances.
@@ -274,9 +275,12 @@ def create_sites(request):
                         ###################################
                         # I think I can use this to convert the units!!!!
                         # just make a quick table of conversions...! and a dict.
-                        print feature.geom.srs['UNIT']
+                        #print feature.geom.srs['UNIT']
                         # something like if unit == Meter or Metre or METER or METRE or meters or metres
-                        # I also need to test out the random prj with the geos api
+                        # The geos API doesn't transform a global or spherical coordinate system such as
+                        # latitude-longitude. These are often referred to as geographic coordinate systems.: ie degrees...
+                        # so I need to use the old method and use a conversion to transform distances between those units
+                        # Only used Projected Coordinate Systems
                         if feature.geom.srs:
                             polygon = feature.geom.transform(srs,True)
                             #Get the centroid to calculate distances and creates a dictionary with centroids as keys, features as vals
@@ -294,6 +298,7 @@ def create_sites(request):
                         # distance = D(m=g1.distance(g2)).mi
                         #distance = site.distance(centroid) # un comment to test
                         if distance <= radius:
+                            print distance
                             other_layers_features.append(features_dict[centroid])
                     other_layers_query.append(other_layers_features)
                     
@@ -377,7 +382,6 @@ def create_sites(request):
             #zipdata.close() # Deletes the temp file object
             
             return response # Un-comment to get the file download.'''
-            print temp_json
             
                 # once I save this as a string, am I gonna be able to
                 # access them as a list??? Do I need to save them as m2m????
