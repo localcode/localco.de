@@ -16,7 +16,7 @@
           Local Code
           <span id="pagesubtitle">
           {% block subtitle %}
-            Browse Data Layers
+            <!--Browse Data Layers-->
           {% endblock %}
           </span>
         </div>
@@ -24,43 +24,18 @@
 
             {% block nav %}
             <ul>
-              <li><a href="/about"><div class="sitenav">About</div></a></li>
-              <li><a href="/tools"><div class="sitenav">Download Tools</div></a></li>
+<!--              <li><a href="/about"><div class="sitenav">About</div></a></li>
+              <li><a href="/tools"><div class="sitenav">Download Tools</div></a></li>-->
               {% block layernavs %}
-              <li><a href="/webfinches/upload"><div class="sitenav">Upload Data</div></a></li>
               {% endblock %}
-              <li><a href="/sitemodels/create"><div class="sitenav">Create Islands</div></a></li>
+              <li><a href="/webfinches/upload"><div class="sitenav">Upload Data</div></a></li>
+              <li><a href="/webfinches/browse"><div class="sitenav">Browse Data</div></a></li>
+              <li><a href="/webfinches/configure"><div class="sitenav">Configure Sites</div></a></li>
+              <li><a href="/webfinches/create_sites"><div class="sitenav">Create Sites</div></a></li>
+              <li><a href="/login"><div class="sitenav">Login</div></a></li>
             </ul>
             {% endblock %}
 
-            {% block content %}
-            <div id="intro">Search for a Data Layer</div>
-            <div id="search">This will be a search bar</div>
-              <div id="layerlist">
-            {% if layers %}
-                <ul>
-                {% for layer in layers %}
-                <li><div id="{{ layer.name }}{{ layer.id }}" class="layerblock">
-                  <span class="layername">{{layer.name}}</span>
-                  <span class="layertype">{{layer.geometry_type}}</span>
-                  {% if layer.tags %}
-                  <span class="tags">
-                    {% for tag in layer.tags %}
-                    <span class="tag">{{ tag.name }}</span>
-                    {% endfor %}
-                  </span>
-                  {% endif %}
-                  {% if layer.notes %}
-                    <span class="layernotes">{{ layer.notes }}</span>
-                  {% endif %}
-                </div>
-                {% endfor %}
-              </ul>
-              {% else %}
-              Here will be a big list of layers.
-            {% endif %}
-              </div>
-            {% endblock %}
 
     {% block scripts %}
     {% endblock %}

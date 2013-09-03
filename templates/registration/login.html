@@ -32,9 +32,18 @@
 				<td>{{ form.password }}</td>
 		</tr>	
 		</table> 
-		<input type="hidden" name="next" value="/" />
+<!--		<input type="hidden" name="next" value="/" />
 		<input type="submit" value="login" />
-		<p><a href="/webfinches/login/create_account">Create an Account</a></p> 
+		-->
+		
+		</p>
+		{% if next %}
+		  <input type="hidden" name="next" value="{{ login }}" />
+		{% else %}
+		  <button type="submit" name="next" value="/webfinches/" />login</button>
+		{% endif %}
+		
+		<!--<p><a href="/webfinches/login/create_account">Create an Account</a></p> -->
 		</form>
 
 {% endblock %}

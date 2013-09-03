@@ -1,2 +1,0 @@
-openfile = open('C:\Users\carlos\projects\localcode\templates\registration\activation_email.txt')
-openfile.read()

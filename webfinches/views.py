@@ -19,12 +19,14 @@ from webfinches.models import *
 from django.contrib.auth.views import login
 from django.core.mail import send_mail
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth import logout
 
 import django.contrib.gis
 from django.contrib.gis.geos import *
 from django.contrib.gis.db import models
 from django.contrib.gis.measure import D
 from django.contrib.gis.gdal import *
+
 
 
 def index(request):
