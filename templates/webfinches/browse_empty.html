@@ -1,0 +1,17 @@
+{% extends "webfinches/review.html" %}
+
+{% block jslibs %}
+{% endblock %}
+
+{% block subtitle %}
+  Browse Data Layers
+{% endblock %}
+
+{% block content %}
+                <form id="layerbrowser", action="/webfinches/browse/" method="POST" enctype="multipast/form-data">
+                {% csrf_token %}
+                {{ formset.management_form }}
+                <p>You don't have any Datalayers yet, please upload some SHP files first!</p>
+
+                </form>
+{% endblock %}
