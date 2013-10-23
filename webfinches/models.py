@@ -104,11 +104,15 @@ class DataFile(Dated):
         if len(pieces) == 1:
             direct = self.extract_path() + '/' + pieces[0]
             pieces = os.listdir(direct)
+        elif len(pieces) == 2:
+            direct = self.extract_path() + '/' + pieces[-1]
+            pieces = os.listdir(direct)
+        print direct
         piece = [p for p in pieces if ext in p]
         if not piece:
             return None
         else:
-            if len(os.listdir( self.extract_path())) == 1:
+            if len(os.listdir( self.extract_path())) == 1 or len(os.listdir( self.extract_path())) == 2:
                 return os.path.join( direct, piece[0] )
             else:
                 return os.path.join( self.extract_path(), piece[0] )
@@ -129,7 +133,7 @@ class DataFile(Dated):
             os.mkdir( extract_dir )
             zip_file = zipfile.ZipFile( self.file )
             zip_file.extractall( extract_dir )
-
+        
         # get shape type
         shape_path = self.path_of_part('.shp')
         print shape_path
