@@ -100,12 +100,18 @@ class DataFile(Dated):
         Assumes that the contents have been extracted.
         Returns `None` if the file can't be found
         """
-        pieces = os.listdir( self.extract_path() )
+        pieces = os.listdir( self.extract_path())
+        if len(pieces) == 1:
+            direct = self.extract_path() + '/' + pieces[0]
+            pieces = os.listdir(direct)
         piece = [p for p in pieces if ext in p]
         if not piece:
             return None
         else:
-            return os.path.join( self.extract_path(), piece[0] )
+            if len(os.listdir( self.extract_path())) == 1:
+                return os.path.join( direct, piece[0] )
+            else:
+                return os.path.join( self.extract_path(), piece[0] )
     def __unicode__(self):
         return "DataFile: %s" % self.file.url
     def get_layer_data(self):
@@ -126,6 +132,7 @@ class DataFile(Dated):
 
         # get shape type
         shape_path = self.path_of_part('.shp')
+        print shape_path
         ds = DataSource( shape_path )
         layer = ds[0]
 
