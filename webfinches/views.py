@@ -182,7 +182,7 @@ def configure(request):
             radius = int(request.POST.get("radius"))
         except ValueError:
             radius = 1000 # We give them a predefined Radius if no radius or an invalid radius is selected
-        if len(request.POST.get("srs")) == 0:
+        if len(request.POST.get("srs")) == 0: # If the user doesn't provide an srs code, use the site's srs code
             srs = site_layer.srs
         else:
             srs = request.POST.get("srs") # Get the srs value to reproject DataLayers
