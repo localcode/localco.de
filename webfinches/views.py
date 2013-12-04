@@ -182,7 +182,10 @@ def configure(request):
             radius = int(request.POST.get("radius"))
         except ValueError:
             radius = 1000 # We give them a predefined Radius if no radius or an invalid radius is selected
-        srs = request.POST.get("srs") # Get the srs value to reproject DataLayers
+        if len(request.POST.get("srs")) == 0:
+            srs = site_layer.srs
+        else:
+            srs = request.POST.get("srs") # Get the srs value to reproject DataLayers
         name = request.POST.get("name") # We get the SiteConfiguration name entered by the user
         configuration = SiteConfiguration(srs = srs, radius=radius, site_layer = site_layer
                                           , author = user, name = name)
