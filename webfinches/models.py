@@ -107,7 +107,7 @@ class DataFile(Dated):
         elif len(pieces) == 2:
             direct = self.extract_path() + '/' + pieces[-1]
             pieces = os.listdir(direct)
-        print direct
+        #print direct
         piece = [p for p in pieces if ext in p]
         if not piece:
             return None
