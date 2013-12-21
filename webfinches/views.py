@@ -5,6 +5,7 @@ from itertools import *
 import json
 import tempfile, zipfile
 import cStringIO
+import datetime
 
 from django.http import HttpResponse
 from django.core.servers.basehttp import FileWrapper
@@ -244,7 +245,7 @@ def create_sites(request):
             layer_site_layer = ds_site_layer[0]
             
             layer_site_fields = layer_site_layer.fields
-            site_field_values = [[geom.get(field) for field in layer_site_fields] for geom in layer_site_layer]
+            site_field_values = [[str(geom.get(field)) for field in layer_site_fields] for geom in layer_site_layer]
             field_attributes = [dict(itertools.izip(layer_site_fields, field_value)) for field_value in site_field_values]
             site_centroids = [ ]
             site_json = [ ]
@@ -279,6 +280,19 @@ def create_sites(request):
             # maybe I don't need to get the centroid, I can do queries with polygons?
             
             # I also need to add something to be able to add other_sites... sites close to site layer!!!
+            
+            def default(obj):
+                """Default JSON serializer."""
+                import calendar, datetime
+            
+                if isinstance(obj, datetime.datetime):
+                    if obj.utcoffset() is not None:
+                        obj = obj - obj.utcoffset()
+                millis = int(
+                    calendar.timegm(obj.timetuple()) * 1000 +
+                    obj.microsecond / 1000
+                )
+                return millis
             
             def get_geo_json(site_dicts, site_centroids, site_number, other_layers):
                 site_geojson = site_dicts[site_number]
@@ -333,7 +347,8 @@ def create_sites(request):
                             if len(other_layers)>0:
                                 other_layer_name = other_layers[0].layer_name
                                 fields = other_layers[0].fields
-                                other_field_values = [[geom.get(field) for field in fields] for geom in other_layers]
+                                other_field_values = [[str(geom.get(field)) for field in fields] for geom in other_layers]
+                                print other_field_values
                                 other_field_attributes = [dict(itertools.izip(fields, field_value)) for field_value in other_field_values]
                                 other_json = [ ]
                                 for feature in other_layers:
@@ -375,7 +390,7 @@ def create_sites(request):
                 temp_json = [ ]
                 for i in range(len(site_centroids)):
                     geoJSON = get_geo_json(site_dicts, site_centroids, i, other_layers)
-                    final_geoJSON = json.dumps(geoJSON)
+                    final_geoJSON = json.dumps(geoJSON)#, default=default)
                     #print final_geoJSON
                     
                     temp_json.append(final_geoJSON)
