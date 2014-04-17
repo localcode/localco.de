@@ -3,6 +3,7 @@ import zipfile
 from urllib import urlencode
 from urllib2 import urlopen
 import json
+import collections
 
 from django import forms
 from django.contrib import gis
@@ -80,44 +81,52 @@ class Lookup(Named):
         abstract=True
 
 class DataFile(Dated):
-
     """Data files represent individual file uploads.
     They are used to construct DataLayers.
     """
     file = models.FileField(upload_to=get_upload_path)
     upload = models.ForeignKey('UploadEvent', null=True, blank=True)
+        
+    def _get_folder(self, directory, ext):
+        directory_content = os.listdir(directory)
+        for name in directory_content:
+            new_dir = os.path.join( self.extract_path(), name )
+            if os.path.isdir(new_dir):
+                self._get_folder(new_dir, ext)
+            else:
+                if ext in new_dir:
+                    break
+        return new_dir
+    
     def get_upload_path(self, filename):
         return 'uploads/%s/%s' % (self.upload.user.username, filename)
+    
     def abs_path(self):
         """returns the full path of the zip file"""
         return os.path.join( MEDIA_ROOT, self.file.__unicode__())
+    
     def extract_path(self):
         """returns a directory path for extracting zip files to"""
         return os.path.splitext( self.abs_path() )[0]
+    
     def path_of_part(self, ext):
         """give an file extension of a specific file within the zip file, and
         get an absolute path to the extracted file with that extension.
         Assumes that the contents have been extracted.
         Returns `None` if the file can't be found
         """
-        pieces = os.listdir( self.extract_path())
-        if len(pieces) == 1:
-            direct = self.extract_path() + '/' + pieces[0]
-            pieces = os.listdir(direct)
-        elif len(pieces) == 2:
-            direct = self.extract_path() + '/' + pieces[-1]
-            pieces = os.listdir(direct)
-        #print direct
-        piece = [p for p in pieces if ext in p]
-        if not piece:
-            return None
+        path_to_part = self._get_folder(self.extract_path(), ext)
+        if ext in path_to_part:
+            return path_to_part
         else:
-            if len(os.listdir( self.extract_path())) == 1 or len(os.listdir( self.extract_path())) == 2:
-                return os.path.join( direct, piece[0] )
-            else:
-                return os.path.join( self.extract_path(), piece[0] )
+            new_pieces = os.listdir(path_to_part)
+            for piece in new_pieces:
+                if ext in piece:
+                    return os.path.join(path_to_part, piece)
+            
     def __unicode__(self):
         return "DataFile: %s" % self.file.url
+    
     def get_layer_data(self):
         """extracts relevant data for building LayerData objects
         meant to be used as initial data for LayerReview Forms
@@ -136,7 +145,7 @@ class DataFile(Dated):
         
         # get shape type
         shape_path = self.path_of_part('.shp')
-        print shape_path
+        #print shape_path
         ds = DataSource( shape_path )
         layer = ds[0]
 
@@ -169,7 +178,6 @@ class DataFile(Dated):
         """takes the prj data and sends it to the prj2epsg API.
         The API returns the srs code if found.
         """
-    
         api_srs = {}
         prj_path = self.path_of_part('.prj')
         if prj_path:

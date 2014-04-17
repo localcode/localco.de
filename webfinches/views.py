@@ -84,6 +84,7 @@ def review(request):
                 layer.save()
                 layer.files.add(data_file) # add the relation
                 layer.save() # resave the layer
+                print layer
         return HttpResponseRedirect('/webfinches/configure/')
 
     else: # we are asking them to review data
