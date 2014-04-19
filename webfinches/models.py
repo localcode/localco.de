@@ -225,6 +225,14 @@ class DataFile(Dated):
                     geoms.append(centroids)
         return geoms
 
+# I can also add a property with the path!!!!!!!!!!
+class PostGeometry4(models.Model):
+    id_n = models.IntegerField()
+    name = models.TextField()
+    srs = models.IntegerField()
+    geom = models.PointField()
+    objects = models.GeoManager()
+
 class DataLayer(Named, Authored, Dated, Noted, GeomType,FilePath):
     srs = models.CharField(max_length=50, null=True, blank=True)
     files = models.ManyToManyField('DataFile', null=True, blank=True )

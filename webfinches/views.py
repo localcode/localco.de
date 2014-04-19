@@ -77,6 +77,7 @@ def review(request):
                 data_file = DataFile.objects.get(id=data_file_id)
                 srs = form.cleaned_data['srs']
                 tags = form.cleaned_data['tags']
+                print form.cleaned_data['pathy']
                 layer = DataLayer(srs = srs, tags=tags)
                 layer = form.save(commit=False)
                 layer.author = user
@@ -85,15 +86,21 @@ def review(request):
                 layer.files.add(data_file) # add the relation
                 layer.save() # resave the layer
                 print layer
+                
         return HttpResponseRedirect('/webfinches/configure/')
 
     else: # we are asking them to review data
         # get the last upload of this user
+        poly = fromstr('POINT(-96.876369 29.905320)')
+        test = PostGeometry4(id_n=1,name='test',srs=555, geom=poly)
+        test.save()
+        print test.geom, test.srs
+        
         upload = UploadEvent.objects.filter(user=user).order_by('-date')[0]
         data_files = DataFile.objects.filter(upload=upload)
         layer_data = [ f.get_layer_data() for f in data_files ]
         formset = LayerReviewFormSet( initial=layer_data )
-
+        
     c = {
             'formset':formset,
             }
@@ -514,8 +521,8 @@ def get_sites(request):
     sites_available = SiteSet.objects.filter(author=user).order_by('-date_edited')
     # this ones give me the date... we can make a list and then compare whatever we
     # had to see if they are part of the site set.
-    print sites_available[0].name[-27:] 
-    print sites_available[24].name[-27:]
+    #print sites_available[0].name[-27:] 
+    #print sites_available[24].name[-27:]
     temp_json = [ ]
     for site in sites_available:
         temp_json.append(site.geoJson)
