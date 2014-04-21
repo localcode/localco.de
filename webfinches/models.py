@@ -226,11 +226,66 @@ class DataFile(Dated):
         return geoms
 
 # I can also add a property with the path!!!!!!!!!!
-class PostGeometry4(models.Model):
+"""class PostGeometry4(models.Model):
     id_n = models.IntegerField()
     name = models.TextField()
     srs = models.IntegerField()
     geom = models.PointField()
+    line_string = models.LineStringField()
+    pgon = models.PolygonField()
+    multi_point = models.MultiPointField()
+    multi_line = models.MultiLineStringField()
+    multi_pgon = models.MultiPolygonField()
+    geometry_lst = models.GeometryCollectionField()
+    objects = models.GeoManager()"""
+    
+class PostPoint(models.Model):
+    id_n = models.IntegerField()
+    name = models.TextField()
+    srs = models.IntegerField()
+    point = models.PointField()
+    objects = models.GeoManager()
+    
+class PostPgon(models.Model):
+    id_n = models.IntegerField()
+    name = models.TextField()
+    srs = models.IntegerField()
+    pgon = models.PolygonField()
+    objects = models.GeoManager()
+    
+class PostLine(models.Model):
+    id_n = models.IntegerField()
+    name = models.TextField()
+    srs = models.IntegerField()
+    line = models.LineStringField()
+    objects = models.GeoManager()
+    
+class PostMPoint(models.Model):
+    id_n = models.IntegerField()
+    name = models.TextField()
+    srs = models.IntegerField()
+    mpoint = models.MultiPointField()
+    objects = models.GeoManager()
+    
+class PostMPgon(models.Model):
+    id_n = models.IntegerField()
+    name = models.TextField()
+    srs = models.IntegerField()
+    mpgon = models.MultiPolygonField()
+    objects = models.GeoManager()
+    
+class PostMLine(models.Model):
+    id_n = models.IntegerField()
+    name = models.TextField()
+    srs = models.IntegerField()
+    mline = models.MultiLineStringField()
+    objects = models.GeoManager()
+    
+class PostMGeom(models.Model):
+    id_n = models.IntegerField()
+    name = models.TextField()
+    srs = models.IntegerField()
+    mgeom = models.GeometryCollectionField()
     objects = models.GeoManager()
 
 class DataLayer(Named, Authored, Dated, Noted, GeomType,FilePath):

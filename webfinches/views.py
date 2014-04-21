@@ -91,10 +91,40 @@ def review(request):
 
     else: # we are asking them to review data
         # get the last upload of this user
-        poly = fromstr('POINT(-96.876369 29.905320)')
-        test = PostGeometry4(id_n=1,name='test',srs=555, geom=poly)
-        test.save()
-        print test.geom, test.srs
+        pnt = Point(-96.876369, 29.905320)
+        test_p = PostPoint(id_n = 1, srs=4326, name = '1', point = pnt)
+        test_p.save()
+        print test_p.point, test_p.srs
+        
+        lns_str = LineString((0, 0), (1, 1))
+        test_l = PostLine(id_n = 2, srs=4326, name = '2', line = lns_str)
+        test_l.save()
+        print test_l.line, test_l.srs
+        
+        ext_coords = ((0, 0), (0, 1), (1, 1), (1, 0), (0, 0))
+        pgon = Polygon(ext_coords)
+        test_p = PostPgon(id_n = 3, srs=4326, name = '3', pgon=pgon)
+        test_p.save()
+        print test_p.pgon, test_p.srs
+        
+        mpt = MultiPoint(Point(0, 0), Point(1, 1))
+        test_mpt = PostMPoint(id_n = 4, srs=4326, name='4', mpoint = mpt)
+        test_mpt.save()
+        print test_mpt.mpoint, test_mpt.srs
+        
+        ls1 = LineString((0, 0), (1, 1))
+        ls2 = LineString((2, 2), (3, 3))
+        mls = MultiLineString(ls1, ls2)
+        test_ml = PostMLine(id_n=5, srs=4326, name='5', mline=mls)
+        test_ml.save()
+        print test_ml.mline, test_ml.srs
+        
+        p1 = Polygon( ((0, 0), (0, 1), (1, 1), (0, 0)) )
+        p2 = Polygon( ((1, 1), (1, 2), (2, 2), (1, 1)) )
+        mp = MultiPolygon(p1, p2)
+        test_mp = PostMPgon(id_n=6, srs=4326, name='6', mpgon=mp)
+        test_mp.save()
+        print test_mp.mpgon, test_mp.srs
         
         upload = UploadEvent.objects.filter(user=user).order_by('-date')[0]
         data_files = DataFile.objects.filter(upload=upload)
