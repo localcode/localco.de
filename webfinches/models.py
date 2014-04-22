@@ -226,67 +226,71 @@ class DataFile(Dated):
         return geoms
 
 # I can also add a property with the path!!!!!!!!!!
-"""class PostGeometry4(models.Model):
+class PostGeomTest(models.Model):
+    id_n = models.IntegerField(null=True)
+    name = models.TextField(null=True)
+    srs = models.IntegerField(null=True)
+    atribs = models.TextField(null=True)
+    geom = models.GeometryField(blank=True, null=True, geography=False)
+    objects = models.GeoManager()
+
+# Might not have to write individual objects for every type of geometry.....
+"""
+class PostPointB(models.Model):
+    id_n = models.IntegerField(null=True)
+    name = models.TextField(null=True)
+    srs = models.IntegerField(null=True)
+    atribs = models.TextField(null=True)
+    geom = models.PointField(null=True, geography=False)
+    objects = models.GeoManager()
+    
+class PostPgonB(models.Model):
+    id_n = models.IntegerField(null=True)
+    name = models.TextField(null=True)
+    srs = models.IntegerField(null=True)
+    atribs = models.TextField(null=True)
+    geom = models.PolygonField(null=True, geography=False)
+    objects = models.GeoManager()
+    
+class PostLineB(models.Model):
+    id_n = models.IntegerField(null=True)
+    name = models.TextField(null=True)
+    srs = models.IntegerField(null=True)
+    atribs = models.TextField(null=True)
+    geom = models.LineStringField(null=True, geography=False)
+    objects = models.GeoManager()
+    
+class PostMPointB(models.Model):
+    id_n = models.IntegerField(null=True)
+    name = models.TextField(null=True)
+    srs = models.IntegerField(null=True)
+    atribs = models.TextField(null=True)
+    geom = models.MultiPointField(null=True, geography=False)
+    objects = models.GeoManager()
+    
+class PostMPgonB(models.Model):
+    id_n = models.IntegerField(null=True)
+    name = models.TextField(null=True)
+    srs = models.IntegerField(null=True)
+    atribs = models.TextField(null=True)
+    geom = models.MultiPolygonField(null=True, geography=False)
+    objects = models.GeoManager()
+    
+class PostMLineB(models.Model):
+    id_n = models.IntegerField(null=True)
+    name = models.TextField(null=True)
+    srs = models.IntegerField(null=True)
+    atribs = models.TextField(null=True)
+    geom = models.MultiLineStringField(null=True, geography=False)
+    objects = models.GeoManager()
+    
+class PostMGeomB(models.Model):
     id_n = models.IntegerField()
     name = models.TextField()
     srs = models.IntegerField()
-    geom = models.PointField()
-    line_string = models.LineStringField()
-    pgon = models.PolygonField()
-    multi_point = models.MultiPointField()
-    multi_line = models.MultiLineStringField()
-    multi_pgon = models.MultiPolygonField()
-    geometry_lst = models.GeometryCollectionField()
+    atribs = models.TextField()
+    geom = models.GeometryCollectionField(null=True, geography=False)
     objects = models.GeoManager()"""
-    
-class PostPoint(models.Model):
-    id_n = models.IntegerField()
-    name = models.TextField()
-    srs = models.IntegerField()
-    point = models.PointField()
-    objects = models.GeoManager()
-    
-class PostPgon(models.Model):
-    id_n = models.IntegerField()
-    name = models.TextField()
-    srs = models.IntegerField()
-    pgon = models.PolygonField()
-    objects = models.GeoManager()
-    
-class PostLine(models.Model):
-    id_n = models.IntegerField()
-    name = models.TextField()
-    srs = models.IntegerField()
-    line = models.LineStringField()
-    objects = models.GeoManager()
-    
-class PostMPoint(models.Model):
-    id_n = models.IntegerField()
-    name = models.TextField()
-    srs = models.IntegerField()
-    mpoint = models.MultiPointField()
-    objects = models.GeoManager()
-    
-class PostMPgon(models.Model):
-    id_n = models.IntegerField()
-    name = models.TextField()
-    srs = models.IntegerField()
-    mpgon = models.MultiPolygonField()
-    objects = models.GeoManager()
-    
-class PostMLine(models.Model):
-    id_n = models.IntegerField()
-    name = models.TextField()
-    srs = models.IntegerField()
-    mline = models.MultiLineStringField()
-    objects = models.GeoManager()
-    
-class PostMGeom(models.Model):
-    id_n = models.IntegerField()
-    name = models.TextField()
-    srs = models.IntegerField()
-    mgeom = models.GeometryCollectionField()
-    objects = models.GeoManager()
 
 class DataLayer(Named, Authored, Dated, Noted, GeomType,FilePath):
     srs = models.CharField(max_length=50, null=True, blank=True)

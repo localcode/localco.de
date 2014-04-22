@@ -91,45 +91,36 @@ def review(request):
 
     else: # we are asking them to review data
         # get the last upload of this user
-        pnt = Point(-96.876369, 29.905320)
-        test_p = PostPoint(id_n = 1, srs=4326, name = '1', point = pnt)
-        test_p.save()
-        print test_p.point, test_p.srs
-        
-        lns_str = LineString((0, 0), (1, 1))
-        test_l = PostLine(id_n = 2, srs=4326, name = '2', line = lns_str)
-        test_l.save()
-        print test_l.line, test_l.srs
-        
-        ext_coords = ((0, 0), (0, 1), (1, 1), (1, 0), (0, 0))
-        pgon = Polygon(ext_coords)
-        test_p = PostPgon(id_n = 3, srs=4326, name = '3', pgon=pgon)
-        test_p.save()
-        print test_p.pgon, test_p.srs
-        
-        mpt = MultiPoint(Point(0, 0), Point(1, 1))
-        test_mpt = PostMPoint(id_n = 4, srs=4326, name='4', mpoint = mpt)
-        test_mpt.save()
-        print test_mpt.mpoint, test_mpt.srs
-        
-        ls1 = LineString((0, 0), (1, 1))
-        ls2 = LineString((2, 2), (3, 3))
-        mls = MultiLineString(ls1, ls2)
-        test_ml = PostMLine(id_n=5, srs=4326, name='5', mline=mls)
-        test_ml.save()
-        print test_ml.mline, test_ml.srs
-        
-        p1 = Polygon( ((0, 0), (0, 1), (1, 1), (0, 0)) )
-        p2 = Polygon( ((1, 1), (1, 2), (2, 2), (1, 1)) )
-        mp = MultiPolygon(p1, p2)
-        test_mp = PostMPgon(id_n=6, srs=4326, name='6', mpgon=mp)
-        test_mp.save()
-        print test_mp.mpgon, test_mp.srs
         
         upload = UploadEvent.objects.filter(user=user).order_by('-date')[0]
         data_files = DataFile.objects.filter(upload=upload)
         layer_data = [ f.get_layer_data() for f in data_files ]
         formset = LayerReviewFormSet( initial=layer_data )
+        
+        ############################################################################
+        # all the geometries will be uploaded to the same db field.
+        # I will need to query only by layer for every configuration.... filter???
+        site = 'testing_site4'
+        bart = 'bart4'
+        
+        # I need to get rid of the hard coded SRS....
+        #load_shp(layer_data[0]['pathy'], bart)
+        #load_shp(layer_data[1]['pathy'], site)
+        sites = PostGeomTest.objects.filter(name=site)#.transform(4326)
+        barts = PostGeomTest.objects.filter(name=bart)#transform(4326)
+        print sites
+        print barts
+        
+        """# seems like distance queries only work with similar geometry!!!!
+        for testing in PostPointA.objects.distance(test_site):
+            pass#print testing.name, testing.distance"""
+        
+        # Here the sites are going to be whatever is being iterated in the for loop....
+        for geom in [g.geom for g in barts]:
+            # Here I select which geometries get queried... according to layer name in other layers....
+            test_q = PostGeomTest.objects.filter(name=site, geom__distance_lte=(geom, D(km=7))) 
+            #print test_q
+            print [g.geom for g in test_q]
         
     c = {
             'formset':formset,
@@ -138,6 +129,52 @@ def review(request):
             'webfinches/review.html',
             RequestContext(request, c),
             )
+
+def load_shp(shp_path, config_name):
+    ds = DataSource(shp_path)
+    layer = ds[0]
+    name, srs = layer.name, 2263#layer.srs
+    """try:
+        srs = srs.identify_epsg()
+        print 4444444444444444555555555
+    except:
+        print 'nooooooooooo'"""
+    # Get the GIS fields
+    fields = layer.fields
+    
+    # Get the GEOS geometries from the SHP file
+    geoms = layer.get_geoms(geos=True)
+    # For every geometry, get their GIS Attributes and save them in a new object.
+    for num, geom in enumerate(geoms):
+        geom_dict = {}
+        # extracrt the GIS field values
+        for field in fields:
+            geom_dict[field] = layer[num].get(field)
+        str_dict = repr(geom_dict)
+        # save the object to the DB
+        db_geom = PostGeomTest(id_n = num, srs = srs, name = config_name, atribs = str_dict, geom = geom)
+        db_geom.save()
+        """if layer.geom_type.django=='PolygonField':
+            db_geom = PostPgonB(id_n = num, srs = srs, name = config_name, atribs = str_dict, geom = geom)
+            db_geom.save()
+        if layer.geom_type.django=='PointField':
+            db_geom = PostPointB(id_n = num, srs = srs, name = config_name, atribs = str_dict, geom = geom)
+            db_geom.save()
+        if layer.geom_type.django=='LineStringField':
+            db_geom = PostLineB(id_n = num, srs = srs, name = config_name, atribs = str_dict, geom = geom)
+            db_geom.save()
+        if layer.geom_type.django=='MultiPointField':
+            db_geom = PostMPointB(id_n = num, srs = srs, name = config_name, atribs = str_dict, geom = geom)
+            db_geom.save()
+        if layer.geom_type.django=='MultiLineStringField':
+            db_geom = PostMLineB(id_n = num, srs = srs, name = config_name, atribs = str_dict, geom = geom)
+            db_geom.save()
+        if layer.geom_type.django=='MultiPolygonField':
+            db_geom = PostMPgonB(id_n = num, srs = srs, name = config_name, atribs = str_dict, geom = geom)
+            db_geom.save()
+        if layer.geom_type.django=='GeometryCollectionField':
+            db_geom = PostMGeomB(id_n = num, srs = srs, name = config_name, atribs = str_dict, geom = geom)
+            db_geom.save()"""
 
 @login_required
 def browse(request):
