@@ -226,9 +226,10 @@ class DataFile(Dated):
         return geoms
 
 # I can also add a property with the path!!!!!!!!!!
-class PostGeomTest6(models.Model):
+class PostGeomTest7(models.Model):
     id_n = models.IntegerField(null=True)
     name = models.TextField(null=True)
+    config_name = models.TextField(blank=True, null=True)
     geom_type = models.TextField(null=True)
     srs = models.IntegerField(null=True)
     atribs = models.TextField(null=True)

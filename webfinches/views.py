@@ -98,26 +98,40 @@ def review(request):
         formset = LayerReviewFormSet( initial=layer_data )
         
         ############################################################################
-        # all the geometries will be uploaded to the same db field.
-        # I will need to query only by layer for every configuration.... filter???
-        site = 'testing_site10'
-        bart = 'bart10'
+        """
+        all the geometries will be uploaded to the same db field.
+        I will need to query only by layer for every configuration.... filter???
+        """
+        # Settings for the query
+        site = 'Final 25 sites_buffer1000m'
+        bart = 'bart_stations'
+        config_name = 'test1'
+        distance = 1000
         
-        # I need to get rid of the hard coded SRS....
-        #load_shp(layer_data[0]['pathy'], bart)
-        #load_shp(layer_data[1]['pathy'], site)
-        sites = PostGeomTest6.objects.filter(name=site)#.transform(2263)
-        barts = PostGeomTest6.objects.filter(name=bart)#.transform(2263)
-        #rint sites
-        print barts
+        for layer in layer_data:
+            srs = int(layer['srs'][layer['srs'].find(':')+1:])
+            #load_shp(layer['pathy'], config_name, srs)
+            #load_shp(layer['pathy'], config_name, srs)
+        sites = PostGeomTest7.objects.filter(config_name=config_name, name=site)
+        other_layers = [bart] # here are going to be all the layers that are other sites
         
-        # Here the sites are going to be whatever is being iterated in the for loop....
+        # The sites here are going to correspond to site configurations. If other sites, grab the sites.
+        # name will come from layer name, site_config from specific site configuration and distance from config_dist
         for geom in [g.geom for g in sites]:
-            # Here I select which geometries get queried... according to layer name in other layers....
-            test_q = PostGeomTest6.objects.filter(name=bart, geom__distance_lte=(geom, D(km=1000000000))) 
-            #print test_q
-            print len(test_q)#, test_q[0].geom.srid
-        
+            other_jsons = []
+            for other_layer in other_layers:
+                # Here I select which geometries get queried... according to layer name in other layers and site configuration
+                query = PostGeomTest7.objects.filter(config_name=config_name, name=other_layer, geom__distance_lte=(geom, D(m=distance))) 
+                #print query
+                if len(query) > 0:
+                    site = False
+                    print len(query)
+                    other_jsons.append(query_to_json(query, site))
+            
+            # here I will have to add the site JSON
+            geoJSON = {"layers":other_jsons, "type":"LayerCollection"}
+            print geoJSON
+
     c = {
             'formset':formset,
             }
@@ -126,41 +140,57 @@ def review(request):
             RequestContext(request, c),
             )
 
-def load_shp(shp_path, config_name):
+"""
+This function takes a postgis query, and turns it into a Finches geoJSON
+"""
+def query_to_json(query, site):
+    geometries = []
+    for shape in query:
+        #geometry = shape.geom.transform(srs,True)
+        geometry = json.loads(shape.geom.json)
+        geom_dict = { }
+        geom_dict['geometry'] = geometry
+        geom_dict['type'] = 'Feature'
+        geom_dict['properties'] = eval(shape.atribs)
+        geometries.append(geom_dict)
+    site_name = query[0].name
+    if site:
+        site_name = 'site'
+    geojson_dict = {"type": "Layer", "name":site_name, "contents":{"type": "Feature Collection", "features":geometries}}
+    return json.dumps(geojson_dict)
+                    
+"""
+This function loads shape files to the DB and serializes their attributes. Every object is an individual geometry
+with a dictionary, a layer, and a configuration name that may be converted to a JSON
+"""
+def load_shp(shp_path, config_name, srs):
     # Set a GDAL datsource
     ds = DataSource(shp_path)
     layer = ds[0]
-    name, srs = layer.name, 2263#layer.srs
+    # Get the layer name
+    name = layer.name#layer.srs
     # Get the geometry type
     geom_type = layer.geom_type.name
-    """try:
-        srs = srs.identify_epsg()
-        print 4444444444444444555555555
-    except:
-        print 'nooooooooooo'"""
     # Get the GIS fields
     fields = layer.fields
     
     # Get the GEOS geometries from the SHP file
     geoms = layer.get_geoms(geos=True)
-    if geom_type == 'Polygon':
-        geoms = [geom.boundary for geom in geoms]
-        
-    # I NEED TO MESS WITH THE PROJECTIONS AND SUCH... DUNNO IF THE DEFAULT SRID OF THE MODEL AFFECTS, OR CAN BE CHANGED....
-    # MAYBE I SHOULD DO SOME TESTS BY PRINTING THE DISTAMCE....
-    new_geoms = []
     for geom in geoms:
-        geom.set_srid(srs)
-        new_geoms.append(geom)
+        geom.srid= srs
+    if geom_type == 'Polygon' or geom_type == 'MultiPolygon':
+        geoms = [geom.boundary for geom in geoms]
+
     # For every geometry, get their GIS Attributes and save them in a new object.
-    for num, geom in enumerate(new_geoms):
+    for num, geom in enumerate(geoms):
         geom_dict = {}
         # extracrt the GIS field values
         for field in fields:
-            geom_dict[field] = layer[num].get(field)
+            geom_dict[str(field)] = str(layer[num].get(field))
+        # Saves the dictionary as a str.....MAYBE I SHOULD CONSIDER USING JSON INSTEAD?
         str_dict = repr(geom_dict)
         # save the object to the DB
-        db_geom = PostGeomTest6(id_n = num, geom_type=geom_type, srs = srs, name = config_name, atribs = str_dict, geom = geom)
+        db_geom = PostGeomTest7(id_n = num, geom_type = geom_type, srs = srs, config_name = config_name, name = name, atribs = str_dict, geom = geom)
         db_geom.save()
 
 @login_required
