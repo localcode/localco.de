@@ -226,71 +226,16 @@ class DataFile(Dated):
         return geoms
 
 # I can also add a property with the path!!!!!!!!!!
-class PostGeomTest(models.Model):
+class PostGeomTest6(models.Model):
     id_n = models.IntegerField(null=True)
     name = models.TextField(null=True)
+    geom_type = models.TextField(null=True)
     srs = models.IntegerField(null=True)
     atribs = models.TextField(null=True)
-    geom = models.GeometryField(blank=True, null=True, geography=False)
+    geom = models.GeometryField(blank=True, null=True, geography=False)#, srid=4326)
     objects = models.GeoManager()
-
-# Might not have to write individual objects for every type of geometry.....
-"""
-class PostPointB(models.Model):
-    id_n = models.IntegerField(null=True)
-    name = models.TextField(null=True)
-    srs = models.IntegerField(null=True)
-    atribs = models.TextField(null=True)
-    geom = models.PointField(null=True, geography=False)
-    objects = models.GeoManager()
-    
-class PostPgonB(models.Model):
-    id_n = models.IntegerField(null=True)
-    name = models.TextField(null=True)
-    srs = models.IntegerField(null=True)
-    atribs = models.TextField(null=True)
-    geom = models.PolygonField(null=True, geography=False)
-    objects = models.GeoManager()
-    
-class PostLineB(models.Model):
-    id_n = models.IntegerField(null=True)
-    name = models.TextField(null=True)
-    srs = models.IntegerField(null=True)
-    atribs = models.TextField(null=True)
-    geom = models.LineStringField(null=True, geography=False)
-    objects = models.GeoManager()
-    
-class PostMPointB(models.Model):
-    id_n = models.IntegerField(null=True)
-    name = models.TextField(null=True)
-    srs = models.IntegerField(null=True)
-    atribs = models.TextField(null=True)
-    geom = models.MultiPointField(null=True, geography=False)
-    objects = models.GeoManager()
-    
-class PostMPgonB(models.Model):
-    id_n = models.IntegerField(null=True)
-    name = models.TextField(null=True)
-    srs = models.IntegerField(null=True)
-    atribs = models.TextField(null=True)
-    geom = models.MultiPolygonField(null=True, geography=False)
-    objects = models.GeoManager()
-    
-class PostMLineB(models.Model):
-    id_n = models.IntegerField(null=True)
-    name = models.TextField(null=True)
-    srs = models.IntegerField(null=True)
-    atribs = models.TextField(null=True)
-    geom = models.MultiLineStringField(null=True, geography=False)
-    objects = models.GeoManager()
-    
-class PostMGeomB(models.Model):
-    id_n = models.IntegerField()
-    name = models.TextField()
-    srs = models.IntegerField()
-    atribs = models.TextField()
-    geom = models.GeometryCollectionField(null=True, geography=False)
-    objects = models.GeoManager()"""
+    def __unicode__(self):
+        return "PostGeomTest: %s, %s" % (str(self.name), self.geom)
 
 class DataLayer(Named, Authored, Dated, Noted, GeomType,FilePath):
     srs = models.CharField(max_length=50, null=True, blank=True)
