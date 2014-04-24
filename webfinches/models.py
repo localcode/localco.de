@@ -237,6 +237,13 @@ class PostGeomTest7(models.Model):
     objects = models.GeoManager()
     def __unicode__(self):
         return "PostGeomTest: %s, %s" % (str(self.name), self.geom)
+    
+class PostConfigTest(PostGeomTest7):
+    config_id = models.IntegerField(null=True)
+    config_name_test = models.TextField(blank=True, null=True)
+    config_srs = models.IntegerField(null=True)
+    def __unicode__(self):
+        return "PostConfig: %s, %s" % (str(self.config_name_test), self.config_id)
 
 class DataLayer(Named, Authored, Dated, Noted, GeomType,FilePath):
     srs = models.CharField(max_length=50, null=True, blank=True)
