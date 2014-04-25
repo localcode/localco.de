@@ -236,23 +236,24 @@ class PostGeomTest9(models.Model):
     def __unicode__(self):
         return "PostGeomTest: %s, %s" % (str(self.name), self.geom)
     
-class PostLayerTest5(models.Model):
+class PostLayerTest6(models.Model):
     layer_name = models.TextField(null=True, blank=True)
     layer_srs = models.IntegerField(null=True, blank=True)
     features = models.ManyToManyField(PostGeomTest9, null=True, blank=True)
     objects = models.GeoManager()
     def __unicode__(self):
-        return "PostLayerTest: %s, %s features, srs=%s" % (str(self.layer_name), len(self.features), self.layer_srs)
+        return "PostLayerTest: %s, %s features, srs=%s" % (str(self.layer_name), len(self.features.all()), self.layer_srs)
     
-class PostConfigTest14(models.Model):
+class PostConfigTest17(models.Model):
     config_id = models.IntegerField(null=True)
-    site_num = models.IntegerField(null=True, blank=True)
     config_name = models.TextField(blank=True, null=True)
     config_srs = models.IntegerField(null=True, blank=True)
-    site = models.ManyToManyField(PostGeomTest9, related_name='site', null=True, blank=True)
-    other_layers = models.ManyToManyField(PostGeomTest9, related_name='other_layers', null=True, blank=True)
-    """def __unicode__(self):
-        return "PostConfig: %s, %s, site:%s, other layers: %s" % (str(self.config_name), self.config_id, self.site.name, self.other_layers.name)"""
+    site = models.ManyToManyField(PostLayerTest6, related_name='site', null=True, blank=True)
+    other_layers = models.ManyToManyField(PostLayerTest6, related_name='other_layers', null=True, blank=True)
+    def __unicode__(self):
+        #site_name = self.site.all()[0].layer_name
+        #other_names = ''.join([layer.layer_name for layer in self.other_layers.all()])
+        return "PostConfig: %s: %s" % (self.config_id, str(self.config_name))
 
 class DataLayer(Named, Authored, Dated, Noted, GeomType,FilePath):
     srs = models.CharField(max_length=50, null=True, blank=True)
