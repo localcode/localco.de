@@ -108,19 +108,34 @@ def review(request):
         # Settings for the query
         site = 'Final 25 sites_buffer1000m'
         bart = 'bart_stations'
-        config_name = 'test1'
-        distance = 1000
+        distance = 1500
+        
         
         # For every layer in the layer form, write a PostGIS object to the DB
         for layer in layer_data:
             srs = int(layer['srs'][layer['srs'].find(':')+1:])
             # Write the object to the DB
-            #load_shp(layer['pathy'], config_name, srs)
-            #load_shp(layer['pathy'], config_name, srs)
+            #load_shp(layer['pathy'], srs)
+            test_layer = load_layer(layer['pathy'], srs)
+            print test_layer
         # Get the site objects with a query to the DB
-        sites = PostGeomTest7.objects.filter(config_name=config_name, name=site)
+        sites = PostGeomTest9.objects.filter(name=site)
         # this wiil be all the layers that are other layers
-        other_layers = [bart] 
+        other_layerz = [bart]
+        
+        """"# Setting for Configuration
+        config_id = 0
+        site_num = 0 # will have to be within a loop
+        config_name = 'test1'
+        config_srs = 26910
+        other_layers = []
+        for other_l in other_layerz:
+            other_ls = PostGeomTest9.objects.filter(name=other_l)
+            for other in other_ls:
+                other_layers.append(other)
+        # site will have to be itterated within a loop
+        config_test = load_configuration(config_id, site_num, config_name, config_srs, site=sites[0], other_layers=other_layers)
+        print config_test.other_layers.all()"""
         
         # The sites here are going to correspond to site configurations. 
         # name will come from layer name, site_config from specific site configuration and distance from config_dist
@@ -129,15 +144,17 @@ def review(request):
             # Add the site to the geoJSON
             jsons.append(query_to_json([sites[j]], site=True))
             
-            # See if other sites are within the site
-            other_sites_query = PostGeomTest7.objects.filter(config_name=config_name, name=site, geom__distance_lte=(geom, D(m=distance))) 
+            ##################################
+            #Turn this on for other site queries
+            """# See if other sites are within the site
+            other_sites_query = PostGeomTest9.objects.filter(name=site, geom__distance_lte=(geom, D(m=distance))) 
             if len(other_sites_query) > 0:
-                jsons.append(query_to_json(other_sites_query, other_sites=True))
+                jsons.append(query_to_json(other_sites_query, other_sites=True))"""
             
             # Do queries with other layers
-            for other_layer in other_layers:
+            for other_layer in other_layerz:
                 # Here I select which geometries get queried... according to layer name in other layers and site configuration
-                query = PostGeomTest7.objects.filter(config_name=config_name, name=other_layer, geom__distance_lte=(geom, D(m=distance))) 
+                query = PostGeomTest9.objects.filter(name=other_layer, geom__distance_lte=(geom, D(m=distance))) 
                 if len(query) > 0:
                     print len(query)
                     # Add other layers to the geoJSON
@@ -156,16 +173,113 @@ def review(request):
             )
 
 """
+This function loads shape files to the DB and serializes their attributes. Every object is an individual geometry
+with a dictionary, and a layer that may be converted to a JSON
+"""
+def load_shp(shp_path, srs):
+    # Set a GDAL datsource
+    ds = DataSource(shp_path)
+    layer = ds[0]
+    # Get the layer name
+    name = layer.name#layer.srs
+    # Get the geometry type
+    geom_type = layer.geom_type.name
+    # Get the GIS fields
+    fields = layer.fields
+    
+    # Get the GEOS geometries from the SHP file
+    geoms = layer.get_geoms(geos=True)
+    for geom in geoms:
+        geom.srid= srs
+    # If the geometries are polygons, turn them into linestrings... postGIS query problems
+    if geom_type == 'Polygon' or geom_type == 'MultiPolygon':
+        geoms = [geom.boundary for geom in geoms]
+
+    db_list = []
+    # For every geometry, get their GIS Attributes and save them in a new object.
+    for num, geom in enumerate(geoms):
+        geom_dict = {}
+        # extracrt the GIS field values
+        for field in fields:
+            geom_dict[str(field)] = str(layer[num].get(field))
+        # Saves the dictionary as a str.....MAYBE I SHOULD CONSIDER USING JSON INSTEAD?
+        str_dict = repr(geom_dict)
+        # save the object to the DB
+        db_geom = PostGeomTest9(id_n = num, geom_type = geom_type, srs = srs, name = name, atribs = str_dict, geom = geom)
+        db_geom.save()
+        db_list.append(db_geom)
+    return db_list
+
+"""
+This function loads shape files to the DB and serializes their attributes. Every object is collection of features
+with a dictionary as a property.
+"""
+def load_layer(shp_path, srs):
+    # Set a GDAL datsource
+    ds = DataSource(shp_path)
+    layer = ds[0]
+    # Get the layer name
+    name = layer.name
+    # Get the geometry type
+    geom_type = layer.geom_type.name
+    # Get the GIS fields
+    fields = layer.fields
+    
+    # Get the GEOS geometries from the SHP file
+    geoms = layer.get_geoms(geos=True)
+    for geom in geoms:
+        geom.srid= srs
+    # If the geometries are polygons, turn them into linestrings... postGIS query problems
+    if geom_type == 'Polygon' or geom_type == 'MultiPolygon':
+        geoms = [geom.boundary for geom in geoms]
+
+    db_layer = PostLayerTest5(layer_name=name, layer_srs=srs, geom=geoms[0])
+    db_layer.save()
+    # For every geometry, get their GIS Attributes and save them in a new object.
+    for num, geom in enumerate(geoms):
+        geom_dict = {}
+        # extracrt the GIS field values
+        for field in fields:
+            geom_dict[str(field)] = str(layer[num].get(field))
+        # Saves the dictionary as a json
+        str_dict = json.dumps(geom_dict)
+        # Set the attibute json to a property of the geometry
+        geom.attribs = str_dict
+        # Add the geometry to the PostLayer object
+        db_layer.geom.add(geom)
+    return db_layer
+
+"""
+This function loads site configurations to the DB and relates them to other PostGeom objects as site and other_layers. 
+Every object is an individual configuration with a site, site id, srs for transformation, and PostGeom objects.
+"""
+def load_configuration(config_id, site_num, config_name, config_srs, site, other_layers):
+    # Create the configuration db object
+    db_config = PostConfigTest14(config_id=config_id, site_num=site_num, config_name=config_name, config_srs=config_srs)
+    # Save it to the DB
+    db_config.save()
+    # Add the site foreign key relationship
+    db_config.site.add(site)
+    # For every other layer in other_layers, add the m2m relationship
+    for other_layer in other_layers:
+        db_config.other_layers.add(other_layer)
+    return db_config
+
+"""
 This function takes a postgis query, and turns it into a Finches geoJSON
 """
 def query_to_json(query, site=False, other_sites=False):
+    # this will have to change to the configuration srs
+    new_srs = 26910
     geometries = []
     # for every shape in the query
     for shape in query:
+        geometry = shape.geom
         # maybe we will reproject all of them into the site's coordinate system
-        #geometry = shape.geom.transform(srs,True)
+        if new_srs:
+            geometry = shape.geom.transform(new_srs, True)
         # get a geoJSON object
-        geometry = json.loads(shape.geom.json)
+        geometry = json.loads(geometry.json)
         # create a blank dictionary
         geom_dict = { }
         # add the geometry to the dict
@@ -188,40 +302,6 @@ def query_to_json(query, site=False, other_sites=False):
     geojson_dict = {"type": "Layer", "name":site_name, "contents":{"type": "Feature Collection", "features":geometries}}
     return geojson_dict
                     
-"""
-This function loads shape files to the DB and serializes their attributes. Every object is an individual geometry
-with a dictionary, a layer, and a configuration name that may be converted to a JSON
-"""
-def load_shp(shp_path, config_name, srs):
-    # Set a GDAL datsource
-    ds = DataSource(shp_path)
-    layer = ds[0]
-    # Get the layer name
-    name = layer.name#layer.srs
-    # Get the geometry type
-    geom_type = layer.geom_type.name
-    # Get the GIS fields
-    fields = layer.fields
-    
-    # Get the GEOS geometries from the SHP file
-    geoms = layer.get_geoms(geos=True)
-    for geom in geoms:
-        geom.srid= srs
-    # If the geometries are polygons, turn them into linestrings... postGIS query problems
-    if geom_type == 'Polygon' or geom_type == 'MultiPolygon':
-        geoms = [geom.boundary for geom in geoms]
-
-    # For every geometry, get their GIS Attributes and save them in a new object.
-    for num, geom in enumerate(geoms):
-        geom_dict = {}
-        # extracrt the GIS field values
-        for field in fields:
-            geom_dict[str(field)] = str(layer[num].get(field))
-        # Saves the dictionary as a str.....MAYBE I SHOULD CONSIDER USING JSON INSTEAD?
-        str_dict = repr(geom_dict)
-        # save the object to the DB
-        db_geom = PostGeomTest7(id_n = num, geom_type = geom_type, srs = srs, config_name = config_name, name = name, atribs = str_dict, geom = geom)
-        db_geom.save()
 
 @login_required
 def browse(request):

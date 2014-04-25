@@ -224,26 +224,35 @@ class DataFile(Dated):
                     centroids = OGRGeometry(bbox).centroid
                     geoms.append(centroids)
         return geoms
-
+    
 # I can also add a property with the path!!!!!!!!!!
-class PostGeomTest7(models.Model):
+class PostGeomTest9(models.Model):
     id_n = models.IntegerField(null=True)
     name = models.TextField(null=True)
-    config_name = models.TextField(blank=True, null=True)
-    geom_type = models.TextField(null=True)
     srs = models.IntegerField(null=True)
     atribs = models.TextField(null=True)
-    geom = models.GeometryField(blank=True, null=True, geography=False)#, srid=4326)
+    geom = models.GeometryField(blank=True, null=True, geography=False)
     objects = models.GeoManager()
     def __unicode__(self):
         return "PostGeomTest: %s, %s" % (str(self.name), self.geom)
     
-class PostConfigTest(PostGeomTest7):
-    config_id = models.IntegerField(null=True)
-    config_name_test = models.TextField(blank=True, null=True)
-    config_srs = models.IntegerField(null=True)
+class PostLayerTest5(models.Model):
+    layer_name = models.TextField(null=True, blank=True)
+    layer_srs = models.IntegerField(null=True, blank=True)
+    features = models.ManyToManyField(PostGeomTest9, null=True, blank=True)
+    objects = models.GeoManager()
     def __unicode__(self):
-        return "PostConfig: %s, %s" % (str(self.config_name_test), self.config_id)
+        return "PostLayerTest: %s, %s features, srs=%s" % (str(self.layer_name), len(self.features), self.layer_srs)
+    
+class PostConfigTest14(models.Model):
+    config_id = models.IntegerField(null=True)
+    site_num = models.IntegerField(null=True, blank=True)
+    config_name = models.TextField(blank=True, null=True)
+    config_srs = models.IntegerField(null=True, blank=True)
+    site = models.ManyToManyField(PostGeomTest9, related_name='site', null=True, blank=True)
+    other_layers = models.ManyToManyField(PostGeomTest9, related_name='other_layers', null=True, blank=True)
+    """def __unicode__(self):
+        return "PostConfig: %s, %s, site:%s, other layers: %s" % (str(self.config_name), self.config_id, self.site.name, self.other_layers.name)"""
 
 class DataLayer(Named, Authored, Dated, Noted, GeomType,FilePath):
     srs = models.CharField(max_length=50, null=True, blank=True)
