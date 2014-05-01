@@ -108,6 +108,7 @@ def review(request):
         # Settings for the query
         site = 'Final 25 sites_buffer1000m'
         bart = 'bart_stations'
+        test_others = [bart]
         distance = 1500
         
         
@@ -128,7 +129,7 @@ def review(request):
         
         other_layers = []
         # There should be a little function to figure out if there are no other layers
-        for other_layer in [bart]: # the list of layer names or layer IDs will come from the form
+        for other_layer in test_others: # the list of layer names or layer IDs will come from the form
             other_layers.append(PostLayerTest6.objects.filter(layer_name=other_layer)[0])
 
         #config_test = load_configuration(config_id, config_name, config_srs, site_layer, other_layers)
@@ -137,35 +138,28 @@ def review(request):
         # this will be selected via the form
         my_config = PostConfigTest17.objects.filter(config_name=config_name)[0]
         sites = my_config.site.all()[0].features.all()
-        print len(sites)
-        """
-        # The sites here are going to correspond to site configurations. 
-        # name will come from layer name, site_config from specific site configuration and distance from config_dist
-        for j, geom in enumerate([g.geom for g in sites]):
+        other_layerz = my_config.other_layers.all()
+        for j, my_site in enumerate(sites[:3]):
             jsons = []
             # Add the site to the geoJSON
             jsons.append(query_to_json([sites[j]], site=True))
             
-            
-            ##################################
-            #Turn this on for other site queries
             # See if other sites are within the site
-            other_sites_query = PostGeomTest9.objects.filter(name=site, geom__distance_lte=(geom, D(m=distance))) 
+            other_sites_query = sites.filter(geom__distance_lte=(my_site.geom, D(m=distance)))
             if len(other_sites_query) > 0:
                 jsons.append(query_to_json(other_sites_query, other_sites=True))
-            
+                
             # Do queries with other layers
-            for other_layer in other_layerz:
-                # Here I select which geometries get queried... according to layer name in other layers and site configuration
-                query = PostGeomTest9.objects.filter(name=other_layer, geom__distance_lte=(geom, D(m=distance))) 
-                if len(query) > 0:
-                    print len(query)
-                    # Add other layers to the geoJSON
-                    jsons.append(query_to_json(query))
-            print len(jsons)
-            # Add some other tags to the geoJSON, and transform from a python dict to a geoJSON
-            geoJSON = json.dumps({"layers":jsons, "type":"LayerCollection"})
-            #print geoJSON"""
+            if len(other_layerz) > 0:
+                for other_layer in other_layerz:
+                    # Here I select which geometries get queried... according to layer name in other layers and site configuration
+                    query = other_layer.features.all().filter(geom__distance_lte=(my_site.geom, D(m=distance)))
+                    if len(query) > 0:
+                        # Add other layers to the geoJSON
+                        jsons.append(query_to_json(query))
+                # Add some other tags to the geoJSON, and transform from a python dict to a geoJSON
+                geoJSON = json.dumps({"layers":jsons, "type":"LayerCollection"})
+                print geoJSON
 
     c = {
             'formset':formset,
