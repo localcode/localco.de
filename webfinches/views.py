@@ -70,6 +70,7 @@ def review(request):
     if request.method == 'POST': # someone is giving us data
         formset = LayerReviewFormSet(request.POST)
         if formset.is_valid():
+            # For every layer in the layer form, write a PostGIS object to the DB
             for form in formset:
             # get the DataFile id from the form data
                 data_file_id = form.cleaned_data['data_file_id']
@@ -77,7 +78,7 @@ def review(request):
                 data_file = DataFile.objects.get(id=data_file_id)
                 srs = form.cleaned_data['srs']
                 tags = form.cleaned_data['tags']
-                print form.cleaned_data['pathy']
+                #print form.cleaned_data['pathy']
                 layer = DataLayer(srs = srs, tags=tags)
                 layer = form.save(commit=False)
                 layer.author = user
@@ -85,7 +86,15 @@ def review(request):
                 layer.save()
                 layer.files.add(data_file) # add the relation
                 layer.save() # resave the layer
-                print layer
+                #print layer
+                
+                
+                ######################
+                srs = int(form.cleaned_data['srs'][form.cleaned_data['srs'].find(':')+1:])
+                # Write the layer to the DB
+                loaded_layer = load_layer(form.cleaned_data['pathy'], srs)
+                print loaded_layer
+                
                 
         return HttpResponseRedirect('/webfinches/configure/')
 
@@ -98,56 +107,66 @@ def review(request):
         formset = LayerReviewFormSet( initial=layer_data )
         
         ############################################################################
-        """
-        all the geometries will be uploaded to the same db field.
-        I will need to query only by layer for every configuration.... filter???
-        """
-        
         #################################
         # This ones will have to change and be specific to the configuration
         # Settings for the query
         site = 'Final 25 sites_buffer1000m'
         bart = 'bart_stations'
-        test_others = [bart]
+        others = [bart]
         distance = 1500
         
         
-        # For every layer in the layer form, write a PostGIS object to the DB
+        """# For every layer in the layer form, write a PostGIS object to the DB
         for layer in layer_data:
             srs = int(layer['srs'][layer['srs'].find(':')+1:])
             # Write the layer to the DB
-            #test_layer = load_layer(layer['pathy'], srs)
-            #print test_layer
+            loaded_layer = load_layer(layer['pathy'], srs)
+            print loaded_layer
         
+        #########################
+        # this has to change with the user's info
+        ########################
         # Settings for the site configuration
         config_id = 0
         config_name = 'test1'
         config_srs = 26910
 
         # This will have to be chosen from the forms....
-        site_layer = PostLayerTest6.objects.filter(layer_name=site)[0]
+        site_layer = PostLayer.objects.filter(layer_name=site)[0]
         
-        other_layers = []
         # There should be a little function to figure out if there are no other layers
-        for other_layer in test_others: # the list of layer names or layer IDs will come from the form
-            other_layers.append(PostLayerTest6.objects.filter(layer_name=other_layer)[0])
+        if len(others) > 0:
+            other_layers = []
+            for other_layer in others: # the list of layer names or layer IDs will come from the form
+                other_layers.append(PostLayer.objects.filter(layer_name=other_layer)[0])
 
-        #config_test = load_configuration(config_id, config_name, config_srs, site_layer, other_layers)
-        #print config_test, config_test.id, config_test.site.all()[0].features.all()[0]
+            configuration = load_configuration(config_id, config_name, config_srs, site_layer, other_layers)
+            print configuration, configuration.id, configuration.site.all()[0].features.all()[0]
         
+        else:
+            configuration = load_configuration(config_id, config_name, config_srs, site_layer)
+        
+        #####################################
         # this will be selected via the form
-        my_config = PostConfigTest17.objects.filter(config_name=config_name)[0]
+        ##################################
+        my_config = PostConfiguration.objects.filter(config_name=config_name)[0]
+        if my_config.config_srs:
+            srs = my_config.config_srs
+        else: srs = None
         sites = my_config.site.all()[0].features.all()
         other_layerz = my_config.other_layers.all()
-        for j, my_site in enumerate(sites[:3]):
+        #################
+        # this has to change to all the sites!!!!!!!!
+        ##################"""
+        """for j, my_site in enumerate(sites[:3]):
             jsons = []
             # Add the site to the geoJSON
-            jsons.append(query_to_json([sites[j]], site=True))
+            jsons.append(query_to_json([sites[j]], site=True, srs=srs))
             
             # See if other sites are within the site
             other_sites_query = sites.filter(geom__distance_lte=(my_site.geom, D(m=distance)))
             if len(other_sites_query) > 0:
-                jsons.append(query_to_json(other_sites_query, other_sites=True))
+                jsons.append(query_to_json(other_sites_query, other_sites=True, srs=srs))
                 
             # Do queries with other layers
             if len(other_layerz) > 0:
@@ -156,10 +175,10 @@ def review(request):
                     query = other_layer.features.all().filter(geom__distance_lte=(my_site.geom, D(m=distance)))
                     if len(query) > 0:
                         # Add other layers to the geoJSON
-                        jsons.append(query_to_json(query))
+                        jsons.append(query_to_json(query, srs=srs))
                 # Add some other tags to the geoJSON, and transform from a python dict to a geoJSON
                 geoJSON = json.dumps({"layers":jsons, "type":"LayerCollection"})
-                print geoJSON
+                print geoJSON"""
 
     c = {
             'formset':formset,
@@ -199,7 +218,7 @@ def load_shp(layer, srs):
         # Saves the dictionary as a str.....MAYBE I SHOULD CONSIDER USING JSON INSTEAD?
         str_dict = json.dumps(geom_dict)
         # save the object to the DB
-        db_geom = PostGeomTest9(id_n = num, name = name, srs = srs, atribs = str_dict, geom = geom)
+        db_geom = PostGeometries(id_n = num, name = name, srs = srs, atribs = str_dict, geom = geom)
         db_geom.save()
         shapes.append(db_geom)
     return shapes
@@ -214,7 +233,7 @@ def load_layer(shp_path, srs):
     layer = ds[0]
     # Get the layer name
     name = layer.name
-    db_layer = PostLayerTest6(layer_name=name, layer_srs=srs)
+    db_layer = PostLayer(layer_name=name, layer_srs=srs)
     db_layer.save()
     
     # load the shapes to the db
@@ -228,31 +247,31 @@ def load_layer(shp_path, srs):
 This function loads site configurations to the DB and relates them to other PostGeom objects as site and other_layers. 
 Every object is an individual configuration with a site, site id, srs for transformation, and PostGeom objects.
 """
-def load_configuration(config_id, config_name, config_srs, site_layer, other_layers):
+def load_configuration(config_id, config_name, config_srs, site_layer, other_layers=None):
     # Create the configuration db object
-    db_config = PostConfigTest17(config_id=config_id, config_name=config_name, config_srs=config_srs)
+    db_config = PostConfiguration(config_id=config_id, config_name=config_name, config_srs=config_srs)
     # Save it to the DB
     db_config.save()
     # Add the site foreign key relationship
     db_config.site.add(site_layer)
     # For every other layer in other_layers, add the m2m relationship
-    for other_layer in other_layers:
-        db_config.other_layers.add(other_layer)
+    if other_layers:
+        for other_layer in other_layers:
+            db_config.other_layers.add(other_layer)
     return db_config
 
 """
 This function takes a postgis query, and turns it into a Finches geoJSON
 """
-def query_to_json(query, site=False, other_sites=False):
+def query_to_json(query, site=False, other_sites=False, srs= None):
     # this will have to change to the configuration srs
-    new_srs = 26910
     geometries = []
     # for every shape in the query
     for shape in query:
         geometry = shape.geom
         # maybe we will reproject all of them into the site's coordinate system
-        if new_srs:
-            geometry = shape.geom.transform(new_srs, True)
+        if srs:
+            geometry = shape.geom.transform(srs, True)
         # get a geoJSON object
         geometry = json.loads(geometry.json)
         # create a blank dictionary
