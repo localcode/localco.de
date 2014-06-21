@@ -64,7 +64,8 @@ def upload(request):
 
 @login_required
 def review(request):
-    """A view for uploading new data.
+    """
+    A view for uploading new data.
     """
     user = request.user
     if request.method == 'POST': # someone is giving us data
@@ -72,25 +73,6 @@ def review(request):
         if formset.is_valid():
             # For every layer in the layer form, write a PostGIS object to the DB
             for form in formset:
-                ######## DELETE!!!!
-                """
-                # get the DataFile id from the form data
-                data_file_id = form.cleaned_data['data_file_id']
-                # now get the actual object associated with that id
-                data_file = DataFile.objects.get(id=data_file_id)
-                srs = form.cleaned_data['srs']
-                tags = form.cleaned_data['tags']
-                #print form.cleaned_data['pathy']
-                layer = DataLayer(srs = srs, tags=tags)
-                layer = form.save(commit=False)
-                layer.author = user
-                # the DataLayer must exist before we can add relations to it
-                layer.save()
-                layer.files.add(data_file) # add the relation
-                layer.save() # resave the layer
-                #print layer"""
-                
-                
                 '''
                 PostGIS DB input
                 '''
@@ -108,7 +90,6 @@ def review(request):
 
     else: # we are asking them to review data
         # get the last upload of this user
-        
         upload = UploadEvent.objects.filter(user=user).order_by('-date')[0]
         data_files = DataFile.objects.filter(upload=upload)
         layer_data = [ f.get_layer_data() for f in data_files ]
@@ -126,26 +107,11 @@ def review(request):
 @login_required
 def browse(request):
     """A view for browsing and editing layers"""
-    #Maybe we hould add Ajax to the add tags???
     user = request.user
     if request.method == 'POST': # someone is giving us data
         formset = LayerReviewFormSet(request.POST)
         if formset.is_valid():
             for form in formset:
-            # get the DataFile id from the form data
-                data_file_id = form.cleaned_data['data_file_id']
-                # now get the actual object associated with that id
-                data_file = DataFile.objects.get(id=data_file_id)
-                
-                tags = form.cleaned_data['tags']
-                layer = DataLayer(tags = tags)
-                layer = form.save(commit=False)
-                layer.author = user
-                # the DataLayer must exist before we can add relations to its
-                layer.save()
-                layer.files.add(data_file) # add the relation
-                layer.save() # resave the layer
-        
                 if form.cleaned_data['srs'].isnumeric():
                     srs = int(form.cleaned_data['srs'])
                 else:
@@ -185,43 +151,13 @@ def browse_empty(request):
 
 @login_required
 def configure(request):
-    """A view that contains ajax scripts for sorting and dealing with layers,
-        in order to build SiteConfigurations
+    """
+    A view that contains ajax scripts for sorting and dealing with layers,
+    in order to build SiteConfigurations
     """
     user = request.user
     if request.method == 'POST': # someone is editing site configuration
-        
-        ############## DELETE!!!!!!!
-        """layers = DataLayer.objects.filter(author=user).order_by('-date_edited')
-        # Get site_layer from checkboxes
-        site_id = request.POST.get("site_layer")
-        site_layer = DataLayer.objects.get(id=site_id)
-        # Get other_layers from checkboxes
-        other_ids = request.POST.getlist("other_layers")
-        other_layers = [ ]
-        for other_layers_id in other_ids:
-            other_layers.append(DataLayer.objects.get(id=other_layers_id))
-        # Get radius for query
-        try:
-            radius = int(request.POST.get("radius"))
-        except ValueError:
-            radius = 1000 # We give them a predefined Radius if no radius or an invalid radius is selected
-        if len(request.POST.get("srs")) == 0: # If the user doesn't provide an srs code, use the site's srs code
-            srs = site_layer.srs
-        else:
-            srs = request.POST.get("srs") # Get the srs value to reproject DataLayers
-        name = request.POST.get("name") # We get the SiteConfiguration name entered by the user
-        configuration = SiteConfiguration(srs = srs, radius=radius, site_layer = site_layer
-                                          , author = user, name = name)
-        configuration.save() # We create the object
-        # We add the m2m relationship with other_layes
-        for other_layer in other_layers:
-            configuration.other_layers.add(other_layer)
-        configuration.save() # Re-save the SiteConfiguration"""
-        
-        '''
-        Here we are getting some user variables
-        '''
+        #Here we are getting some user variables
         layers = PostLayerG.objects.filter(author=user).order_by('-date_edited')
         # Get site_layer from checkboxes
         site_id = request.POST.get("site_layer")
@@ -232,87 +168,36 @@ def configure(request):
         try:
             radius = int(request.POST.get("radius"))
         except ValueError:
-            radius = 1000 # We give them a predefined Radius if no radius or an invalid radius is selected
+            # We give them a predefined Radius if no radius or an invalid radius is selected
+            radius = 1000 
         # We get the SRS code. If the user doesn't provide an srs code, use the site's srs code
         if len(request.POST.get("srs")) == 0: 
             config_srs = site_layer.layer_srs
+        elif request.POST.get("srs").isnumeric():
+            config_srs = int(request.POST.get("srs"))
         else:
-            config_srs = request.POST.get("srs") # Get the srs value to reproject DataLayers
+            config_srs = int(request.POST.get("srs")[request.POST.get("srs").find(':')+1:])
+                    
         # Get other_layers from checkboxes
         other_ids = request.POST.getlist("other_layers")
         if len(other_ids) > 0:
             other_layers = [PostLayerG.objects.get(id=other_layers_id) for other_layers_id in other_ids]
             # Create a PostSiteConfig with the layers
-            configuration = load_configuration(config_name=config_name, site_layer=site_layer, other_layers=other_layers, config_srs=config_srs, radius=radius)
+            configuration = load_configuration(author=user, config_name=config_name, site_layer=site_layer, other_layers=other_layers, config_srs=config_srs, radius=radius)
             print configuration, configuration.site.all()[0].features.all()
             
         else:
-            configuration = load_configuration(config_name=config_name, site_layer=site_layer, config_srs=config_srs, radius=radius)
+            configuration = load_configuration(author=user, config_name=config_name, site_layer=site_layer, config_srs=config_srs, radius=radius)
             print configuration, configuration.site.all()[0].features.all()
             
-        """
-        ############################################################################
-        #################################
-        # This ones will have to change and be specific to the configuration
-        # Settings for the query
-        site = 'Final 25 sites_buffer1000m'
-        bart = 'bart_stations'
-        others = [bart]
-        distance = 1500
-        
-        
-        #####################################
-        # this will be selected via the form
-        ##################################
-        my_config = PostConfiguration.objects.filter(config_name=config_name)[0]
-        if my_config.config_srs:
-            srs = my_config.config_srs
-        else: srs = None
-        sites = my_config.site.all()[0].features.all()
-        other_layerz = my_config.other_layers.all()
-        #################
-        # this has to change to all the sites!!!!!!!!
-        ##################"""
-        """for j, my_site in enumerate(sites[:3]):
-            jsons = []
-            # Add the site to the geoJSON
-            jsons.append(query_to_json([sites[j]], site=True, srs=srs))
-            
-            # See if other sites are within the site
-            other_sites_query = sites.filter(geom__distance_lte=(my_site.geom, D(m=distance)))
-            if len(other_sites_query) > 0:
-                jsons.append(query_to_json(other_sites_query, other_sites=True, srs=srs))
-                
-            # Do queries with other layers
-            if len(other_layerz) > 0:
-                for other_layer in other_layerz:
-                    # Here I select which geometries get queried... according to layer name in other layers and site configuration
-                    query = other_layer.features.all().filter(geom__distance_lte=(my_site.geom, D(m=distance)))
-                    if len(query) > 0:
-                        # Add other layers to the geoJSON
-                        jsons.append(query_to_json(query, srs=srs))
-                # Add some other tags to the geoJSON, and transform from a python dict to a geoJSON
-                geoJSON = json.dumps({"layers":jsons, "type":"LayerCollection"})
-                print geoJSON"""
         
         return HttpResponseRedirect('/webfinches/create_sites/')
 
     else:
         # We are browsing data
-        layers = DataLayer.objects.filter(author=user).order_by('-date_edited')
         test_layers = PostLayerG.objects.filter(author=user).order_by('-date_edited')
-        if len(layers) >0 : 
-            layer = DataLayer.objects.filter(author=user)[0]
-            all_tags = Tag.objects.all()
-        else:
-            all_tags = None
-            print all_tags
-            return HttpResponseRedirect('/webfinches/browse_empty/')
-        
         
     c = {
-            'layers': layers,
-            'tags': all_tags,
             'test_layers': test_layers,
     
             }
@@ -331,256 +216,87 @@ def create_sites(request):
     if request.method == 'POST': # someone is editing site configuration
         site_configurations = SiteConfiguration.objects.filter(author=user).order_by('-date_edited')
         if len(site_configurations)>0:
-            #site_sets = ''
+            # Get the site ID
             configuration_id = request.POST.get("create_sites")
+            my_config = PostConfigurationB.objects.filter(id=configuration_id)[0]
+            if my_config.config_srs:
+                srs = my_config.config_srs
+            else: srs = None
+            # Set query distance
+            distance= my_config.radius
+            # Get a list of site geometries
+            sites = my_config.site.all()[0].features.all()
+            other_layerz = my_config.other_layers.all()
             
-            # This gives us the selected site and perform distance queries.
-            site_configurations_selected = SiteConfiguration.objects.get(id=configuration_id)
-            srs = site_configurations_selected.srs
-            radius = site_configurations_selected.radius #*10
+            minimum = request.POST.get("min")
+            if len(minimum) == 0 or int(minimum)<0:
+                minimum = 0
+            maximum = request.POST.get("max")
+            if len(maximum) == 0 or int(maximum)>len(sites):
+                maximum = len(sites)
+            print int(minimum), type(minimum)
+            print int(maximum), type(maximum)
             
-            site_layer = site_configurations_selected.site_layer
-            other_layers = site_configurations_selected.other_layers.all()
-            path_site_layer = site_layer.get_browsing_data()['pathy']
-            ds_site_layer = DataSource( path_site_layer )
-            layer_site_layer = ds_site_layer[0]
             
-            layer_site_fields = layer_site_layer.fields
-            site_field_values = [[str(geom.get(field)) for field in layer_site_fields] for geom in layer_site_layer]
-            field_attributes = [dict(itertools.izip(layer_site_fields, field_value)) for field_value in site_field_values]
-            site_centroids = [ ]
-            site_json = [ ]
-            site_dicts = [ ]
-            for feature in layer_site_layer:
-                if feature.geom.srs:
-                    polygon = feature.geom.transform(srs,True)
-                    site_json.append(json.loads(polygon.json))
-                    #print feature.geom.srs['UNIT']
-                    # it used to be append(feature.geom.json)
-                    # but I think this gets the reprojected geom?
-                    #Get the centroid to calculate distances.
-                    site_centroids.append(get_centroid(polygon)) 
-                    # geos testing
-                    #site_centroids.append(feature.geom.geos)
-                    
-            site_json_dicts = [ ]
-            site_num = -1
-            for geom in site_json:
-                geom_json_dicts = { }
-                site_num += 1
-                geom_json_dicts['geometry'] = geom
-                geom_json_dicts['type'] = 'Feature'
-                geom_json_dicts['properties'] = field_attributes[site_num]
-                site_json_dicts.append(geom_json_dicts)
-            for site_json_dictionary in site_json_dicts:
-                site_geojson_dict = {"type": "FeatureCollection", "features":[ ]}
-                site_geojson_dict['features'].append( site_json_dictionary )
-                site_dict = {"type": "Layer", "name":"site", "contents":site_geojson_dict}
-                site_dicts.append(site_dict)
-            ##################################
-            # maybe I don't need to get the centroid, I can do queries with polygons?
+            all_geoJSON = []
+            for j, my_site in enumerate(sites[int(minimum):int(maximum)]):
+                jsons = []
+                # Add the site to the geoJSON
+                jsons.append(query_to_json([sites[j]], site=True, srs=srs))
+                
+                # See if other sites are within the site
+                other_sites_query = sites.filter(geom__distance_lte=(my_site.geom, D(m=distance)))
+                if len(other_sites_query) > 0:
+                    jsons.append(query_to_json(other_sites_query, other_sites=True, srs=srs))
+                
+                # Do queries with other layers
+                if len(other_layerz) > 0:
+                    for other_layer in other_layerz:
+                        # Here I select which geometries get queried... according to layer name in other layers and site configuration
+                        query = other_layer.features.all().filter(geom__distance_lte=(my_site.geom, D(m=distance)))
+                        #print len(query)
+                        if len(query) > 0:
+                            # Add other layers to the geoJSON
+                            jsons.append(query_to_json(query, srs=srs))
+                
+                # Add some other tags to the geoJSON, and transform from a python dict to a geoJSON
+                geoJSON = json.dumps({"layers":jsons, "type":"LayerCollection"})
+                #print geoJSON
+                all_geoJSON.append(geoJSON)
             
-            # I also need to add something to be able to add other_sites... sites close to site layer!!!
+            #Write to ZIP file
+            # Create the file object
+            zipdata = cStringIO.StringIO()
+            # Create the zipfile
+            zip_file = zipfile.ZipFile(zipdata, "a") 
+            # Get individual jsons from sitesets
+            i = int(minimum)-1
+            for jason in all_geoJSON: 
+                i += 1
+                # Write individual txt files into zip file
+                zip_file.writestr(str(i) + '.txt',jason) 
             
-            def default(obj):
-                """Default JSON serializer."""
-                import calendar, datetime
+            zip_file.close()
+            zipdata.flush()
             
-                if isinstance(obj, datetime.datetime):
-                    if obj.utcoffset() is not None:
-                        obj = obj - obj.utcoffset()
-                millis = int(
-                    calendar.timegm(obj.timetuple()) * 1000 +
-                    obj.microsecond / 1000
-                )
-                return millis
+            # generate the file
+            response = HttpResponse(FileWrapper(zipdata), 'rb')
+            response['Content-Disposition'] = 'attachment; filename=site_set.zip'
+            zipdata.seek(0)
+            #zipdata.close() # Deletes the temp file object
             
-            def get_geo_json(site_dicts, site_centroids, site_number, other_layers):
-                site_geojson = site_dicts[site_number]
-                site = site_centroids[site_number]
-                if len(other_layers) != 0: # if there are multiple layers in the siteConfiguration, iterate through them.
-                    other_layers_query = [ ]
-                    for other_layer in other_layers:
-                        path_other_layer = other_layer.get_browsing_data()['pathy']
-                        ds_site_layer = DataSource( path_other_layer )
-                        layer_other_layer = ds_site_layer[0]
-                        other_layers_features = [ ]
-                        
-                        features_dict = {}
-                        for feature in layer_other_layer:
-                            #Geometries can only be transformed if they have a .prj file
-                            
-                            ###################################
-                            # I think I can use this to convert the units!!!!
-                            # just make a quick table of conversions...! and a dict.
-                            #print feature.geom.srs['UNIT']
-                            # something like if unit == Meter or Metre or METER or METRE or meters or metres
-                            # The geos API doesn't transform a global or spherical coordinate system such as
-                            # latitude-longitude. These are often referred to as geographic coordinate systems.: ie degrees...
-                            # so I need to use the old method and use a conversion to transform distances between those units
-                            # Only used Projected Coordinate Systems
-                            if feature.geom.srs:
-                                polygon = feature.geom.transform(srs,True)
-                                #Get the centroid to calculate distances and creates a dictionary with centroids as keys, features as vals
-                                features_dict[get_centroid(polygon)] = feature
-                                # Geos testing
-                                #features_dict[feature.geom.geos] = feature
-                        
-                        other_centroids = features_dict.keys()
-                        for centroid in other_centroids:
-                            # Maybe instead of doing this dist query I can turn them into GEOS geom and do distance queries, now that I have dicts.
-                            distance = math.sqrt(((site.x-centroid.x)**2)+((site.y-centroid.y)**2))
-                            # This is me testing the geos API, but I need to
-                            # make sure all the projections are in meters instead!
-                            # since I have to reference the base unit before converting....
-                            # distance = D(m=g1.distance(g2)).mi
-                            #distance = site.distance(centroid) # un comment to test
-                            if distance <= radius:
-                                print distance
-                                other_layers_features.append(features_dict[centroid])
-                        other_layers_query.append(other_layers_features)
-                        
-                    # Create dictionaries with the GDAL API
-                    other_layers_dicts = [ ]
-                    if len(other_layers_query) > 0:
-                        layers_json = [ ]
-                        for other_layers in other_layers_query:
-                            if len(other_layers)>0:
-                                other_layer_name = other_layers[0].layer_name
-                                fields = other_layers[0].fields
-                                other_field_values = [[str(geom.get(field)) for field in fields] for geom in other_layers]
-                                print other_field_values
-                                other_field_attributes = [dict(itertools.izip(fields, field_value)) for field_value in other_field_values]
-                                other_json = [ ]
-                                for feature in other_layers:
-                                    if feature.geom.srs:
-                                        polygon = feature.geom.transform(srs,True)
-                                        other_json.append(json.loads(polygon.json))
-                                
-                                other_json_dict = [ ]
-                                other_num = -1
-                                for geom in other_json:
-                                    geom_other = { }
-                                    other_num += 1
-                                    geom_other['geometry'] = geom
-                                    geom_other['type'] = 'Feature'
-                                    geom_other['properties'] = other_field_attributes[other_num]
-                                    other_json_dict.append(geom_other)
-                                
-                                other_geojson_dict = {"type": "Feature Collection", "features":other_json_dict}
-                                other_dict = {"type": "Layer", "name":other_layer_name, "contents":other_geojson_dict}
-                                layers_json.append(other_dict)
-                                
-                        '''
-                        # this gets the number of geometries per site. 
-                        totals = [ ]
-                        for i in layers_json:
-                            if len(layers_json) == 1:
-                                totals.append(len(i['contents']['features']))
-                                #print len(i['contents']['features'])
-                            else:
-                                totals.append(len(i['contents']['features']))
-                        print sum(totals)
-                        '''
-                        layers_json.insert(0, site_geojson) # Add the site_geoJson to the layers
-                        geoJSON = {"layers":layers_json, "type":"LayerCollection"}
-                        return geoJSON
-                    
-            if len(other_layers) > 0:
-                i = 0
-                temp_json = [ ]
-                for i in range(len(site_centroids)):
-                    geoJSON = get_geo_json(site_dicts, site_centroids, i, other_layers)
-                    final_geoJSON = json.dumps(geoJSON)#, default=default)
-                    #print final_geoJSON
-                    
-                    temp_json.append(final_geoJSON)
-                    
-                    # Save SiteSets depracated?
-                    '''
-                    i += 1
-                    # Save SitSets
-                    sites_sets = SiteSet(author = user, configuration = site_configurations_selected,
-                                        geoJson = final_geoJSON, name = str(site_configurations_selected.name) + ' / ' + str(i)
-                                        + ' / ' + str(site_configurations_selected.date_added))
-                    sites_sets.save() # We create the object'''
-                    
-                zipdata = cStringIO.StringIO() # Create the file object
-                zip_file = zipfile.ZipFile(zipdata, "a") # Create the zipfile
-                i = -1
-                for jason in temp_json: # Get individual jsons from sitesets
-                    i += 1
-                    zip_file.writestr(str(i) + '.txt',jason) # Write individual txt files into zip file
-                zip_file.close()
-                zipdata.flush()
-                
-                # generate the file
-                response = HttpResponse(FileWrapper(zipdata), 'rb')
-                response['Content-Disposition'] = 'attachment; filename=site_set.zip'
-                zipdata.seek(0)
-                #zipdata.close() # Deletes the temp file object
-                
-                return response # Un-comment to get the file download.'''
-                
-                    # once I save this as a string, am I gonna be able to
-                    # access them as a list??? Do I need to save them as m2m????
-                    # add the m2m relationship with other_layers
-                    # maybe I can save a list of siteset appending them individually like othe_layers
-                    # but this needs to be m2m....
-                    # maybe I have to generate all the site_dicts when I created the site_config and
-                    # then just retrieve the selected one???
-                    # for other_layer in other_layers:
-                    #    configuration.other_layers.add(other_layer)
-                    
-                # From previous version....
-                #return HttpResponseRedirect('/webfinches/get_sites/')
-                
-            else: # if there's only a site layer and no other_layers, create a geoJSON dict for a single layer.
-                i = 0
-                temp_json = [ ]
-                for site in site_dicts:
-                    geoJSON = {"layers":[site], "type":"LayerCollection"}
-                    final_geoJSON = json.dumps(geoJSON)
-                    print final_geoJSON
-                    temp_json.append(final_geoJSON)
-                    
-                    # Save SiteSets depracated?
-                    '''
-                    i += 1
-                    sites_sets = SiteSet(author = user, configuration = site_configurations_selected,
-                                        geoJson = final_geoJSON, name = str(site_configurations_selected.name) + ' / ' + str(i)
-                                        + ' / ' + str(site_configurations_selected.date_added))
-                    sites_sets.save() # We create the object'''
-                
-                zipdata = cStringIO.StringIO() # Create the file object
-                zip_file = zipfile.ZipFile(zipdata, "a") # Create the zipfile
-                i = -1
-                for jason in temp_json: # Get individual jsons from sitesets
-                    i += 1
-                    zip_file.writestr(str(i) + '.txt',jason) # Write individual txt files into zip file
-                zip_file.close()
-                zipdata.flush()
-                
-                # generate the file
-                response = HttpResponse(FileWrapper(zipdata), 'rb')
-                response['Content-Disposition'] = 'attachment; filename=site_set.zip'
-                zipdata.seek(0)
-                #zipdata.close() # Deletes the temp file object
-                
-                return response # Un-comment to get the file download.'''
-                print temp_json
-                
-                # From previous version....
-                #return HttpResponseRedirect('/webfinches/get_sites/')
-                # Now I need to add a way to add other sites within range to site set
+            return response # Un-comment to get the file download.
+        
         else:
             return HttpResponseRedirect('/webfinches/create_sites_empty/')
+    
     else:
         # We are browsing data
-        site_configurations = SiteConfiguration.objects.filter(author=user).order_by('-date_edited')
+        test_configurations = PostConfigurationB.objects.filter(author=user).order_by('-date_edited')
+        #print test_configurations[0].site.all()[0].layer_name
 
     c = {
-            'site_configurations': site_configurations,
+            'test_configurations': test_configurations
             }
     return render_to_response(
             'webfinches/create_sites.html',
@@ -650,20 +366,6 @@ def get_sites(request):
             RequestContext(request, c),
             )
 
-@login_required
-def download(request):
-    #A view for downloading data.
-    # configure site layers
-    #layers = DataLayer.objects.all()
-    #layers = layers
-    
-    c = {
-            'individual_sites': individual_sites,
-            'zip_file': zip_file,
-            'api_download': api_download,
-            #'user': request.User,
-            }
-
 """
 This function loads shape files to the DB and serializes their attributes. Every object is an individual geometry
 with a dictionary, and a layer that may be converted to a JSON
@@ -726,12 +428,12 @@ def load_layer(shp_path, srs, author):
 This function loads site configurations to the DB and relates them to other PostGeom objects as site and other_layers. 
 Every object is an individual configuration with a site, site id, srs for transformation, and PostGeom objects.
 """
-def load_configuration(config_name, site_layer, other_layers=None, radius=1000, config_srs=None):
+def load_configuration(author, config_name, site_layer, other_layers=None, radius=1000, config_srs=None):
     if config_srs == None:
         config_srs = site_layer.layer_srs
     
     # Create the configuration db object
-    db_config = PostConfigurationE(config_name=config_name, radius=radius, config_srs=config_srs)
+    db_config = PostConfigurationB(author=author, config_name=config_name, radius=radius, config_srs=config_srs)
     # Save it to the DB
     db_config.save()
     # Add the site foreign key relationship
@@ -743,22 +445,6 @@ def load_configuration(config_name, site_layer, other_layers=None, radius=1000, 
             db_config.other_layers.add(other_layer)
     return db_config
 
-"""
-This function loads site configurations to the DB and relates them to other PostGeom objects as site and other_layers. 
-Every object is an individual configuration with a site, site id, srs for transformation, and PostGeom objects.
-"""
-"""def load_configuration(config_id, config_name, config_srs, site_layer, other_layers=None):
-    # Create the configuration db object
-    db_config = PostConfigurationF(config_id=config_id, config_name=config_name, config_srs=config_srs)
-    # Save it to the DB
-    db_config.save()
-    # Add the site foreign key relationship
-    db_config.site.add(site_layer)
-    # For every other layer in other_layers, add the m2m relationship
-    if other_layers:
-        for other_layer in other_layers:
-            db_config.other_layers.add(other_layer)
-    return db_config"""
 
 """
 This function takes a postgis query, and turns it into a Finches geoJSON

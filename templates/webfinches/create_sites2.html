@@ -28,23 +28,9 @@
         
       {% endfor %}
     </div>
-    {% endif %}
-
-    {% if test_configurations %}
-    <div class="layerset col">
-      {% for site_configuration in test_configurations %}
-        {% include "webfinches/configuration_blocks_post.html" %}
-        
-      {% endfor %}
-    </div>
 {% endif %}
 
-    <div><input type="submit" value="Create Sites" /></div>
-    <div>Optional Minimum and Maximum Sites</div>
-    <div>(Defaults to 0 and/or last Site number)</div>
-    <div><input type="number" name="min" />Minimum Site</div>
-    <div><input type="number" name="max" />Maximum Site</div>
-
+    <p>You can't create any sites! You ha</p>
 </form>
 
 {% endblock %}
