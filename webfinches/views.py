@@ -72,7 +72,9 @@ def review(request):
         if formset.is_valid():
             # For every layer in the layer form, write a PostGIS object to the DB
             for form in formset:
-            # get the DataFile id from the form data
+                ######## DELETE!!!!
+                """
+                # get the DataFile id from the form data
                 data_file_id = form.cleaned_data['data_file_id']
                 # now get the actual object associated with that id
                 data_file = DataFile.objects.get(id=data_file_id)
@@ -86,14 +88,20 @@ def review(request):
                 layer.save()
                 layer.files.add(data_file) # add the relation
                 layer.save() # resave the layer
-                #print layer
+                #print layer"""
                 
                 
-                ######################
-                srs = int(form.cleaned_data['srs'][form.cleaned_data['srs'].find(':')+1:])
+                '''
+                PostGIS DB input
+                '''
+                if form.cleaned_data['srs'].isnumeric():
+                    srs = int(form.cleaned_data['srs'])
+                else:
+                    srs = int(form.cleaned_data['srs'][form.cleaned_data['srs'].find(':')+1:])
                 # Write the layer to the DB
-                loaded_layer = load_layer(form.cleaned_data['pathy'], srs)
+                loaded_layer = load_layer(form.cleaned_data['pathy'], srs, user)
                 print loaded_layer
+                print loaded_layer.author, loaded_layer.date_added, loaded_layer.geometry_type
                 
                 
         return HttpResponseRedirect('/webfinches/configure/')
@@ -106,80 +114,6 @@ def review(request):
         layer_data = [ f.get_layer_data() for f in data_files ]
         formset = LayerReviewFormSet( initial=layer_data )
         
-        ############################################################################
-        #################################
-        # This ones will have to change and be specific to the configuration
-        # Settings for the query
-        site = 'Final 25 sites_buffer1000m'
-        bart = 'bart_stations'
-        others = [bart]
-        distance = 1500
-        
-        
-        """# For every layer in the layer form, write a PostGIS object to the DB
-        for layer in layer_data:
-            srs = int(layer['srs'][layer['srs'].find(':')+1:])
-            # Write the layer to the DB
-            loaded_layer = load_layer(layer['pathy'], srs)
-            print loaded_layer
-        
-        #########################
-        # this has to change with the user's info
-        ########################
-        # Settings for the site configuration
-        config_id = 0
-        config_name = 'test1'
-        config_srs = 26910
-
-        # This will have to be chosen from the forms....
-        site_layer = PostLayer.objects.filter(layer_name=site)[0]
-        
-        # There should be a little function to figure out if there are no other layers
-        if len(others) > 0:
-            other_layers = []
-            for other_layer in others: # the list of layer names or layer IDs will come from the form
-                other_layers.append(PostLayer.objects.filter(layer_name=other_layer)[0])
-
-            configuration = load_configuration(config_id, config_name, config_srs, site_layer, other_layers)
-            print configuration, configuration.id, configuration.site.all()[0].features.all()[0]
-        
-        else:
-            configuration = load_configuration(config_id, config_name, config_srs, site_layer)
-        
-        #####################################
-        # this will be selected via the form
-        ##################################
-        my_config = PostConfiguration.objects.filter(config_name=config_name)[0]
-        if my_config.config_srs:
-            srs = my_config.config_srs
-        else: srs = None
-        sites = my_config.site.all()[0].features.all()
-        other_layerz = my_config.other_layers.all()
-        #################
-        # this has to change to all the sites!!!!!!!!
-        ##################"""
-        """for j, my_site in enumerate(sites[:3]):
-            jsons = []
-            # Add the site to the geoJSON
-            jsons.append(query_to_json([sites[j]], site=True, srs=srs))
-            
-            # See if other sites are within the site
-            other_sites_query = sites.filter(geom__distance_lte=(my_site.geom, D(m=distance)))
-            if len(other_sites_query) > 0:
-                jsons.append(query_to_json(other_sites_query, other_sites=True, srs=srs))
-                
-            # Do queries with other layers
-            if len(other_layerz) > 0:
-                for other_layer in other_layerz:
-                    # Here I select which geometries get queried... according to layer name in other layers and site configuration
-                    query = other_layer.features.all().filter(geom__distance_lte=(my_site.geom, D(m=distance)))
-                    if len(query) > 0:
-                        # Add other layers to the geoJSON
-                        jsons.append(query_to_json(query, srs=srs))
-                # Add some other tags to the geoJSON, and transform from a python dict to a geoJSON
-                geoJSON = json.dumps({"layers":jsons, "type":"LayerCollection"})
-                print geoJSON"""
-
     c = {
             'formset':formset,
             }
@@ -187,114 +121,6 @@ def review(request):
             'webfinches/review.html',
             RequestContext(request, c),
             )
-
-"""
-This function loads shape files to the DB and serializes their attributes. Every object is an individual geometry
-with a dictionary, and a layer that may be converted to a JSON
-"""
-def load_shp(layer, srs):
-    # Get the layer name
-    name = layer.name
-    # Get the geometry type
-    geom_type = layer.geom_type.name
-    # Get the GIS fields
-    fields = layer.fields
-    
-    # Get the GEOS geometries from the SHP file
-    geoms = layer.get_geoms(geos=True)
-    for geom in geoms:
-        geom.srid= srs
-    # If the geometries are polygons, turn them into linestrings... postGIS query problems
-    if geom_type == 'Polygon' or geom_type == 'MultiPolygon':
-        geoms = [geom.boundary for geom in geoms]
-
-    shapes = []
-    # For every geometry, get their GIS Attributes and save them in a new object.
-    for num, geom in enumerate(geoms):
-        geom_dict = {}
-        # extracrt the GIS field values
-        for field in fields:
-            geom_dict[str(field)] = str(layer[num].get(field))
-        # Saves the dictionary as a str.....MAYBE I SHOULD CONSIDER USING JSON INSTEAD?
-        str_dict = json.dumps(geom_dict)
-        # save the object to the DB
-        db_geom = PostGeometries(id_n = num, name = name, srs = srs, atribs = str_dict, geom = geom)
-        db_geom.save()
-        shapes.append(db_geom)
-    return shapes
-
-"""
-This function loads shape files to the DB and serializes their attributes. Every object is collection of features
-with a dictionary as a property.
-"""
-def load_layer(shp_path, srs):
-    # Set a GDAL datsource
-    ds = DataSource(shp_path)
-    layer = ds[0]
-    # Get the layer name
-    name = layer.name
-    db_layer = PostLayer(layer_name=name, layer_srs=srs)
-    db_layer.save()
-    
-    # load the shapes to the db
-    shapes = load_shp(layer, srs)
-    # For every geometry, get their GIS Attributes and save them in a new object.
-    for shape in shapes:
-        db_layer.features.add(shape)
-    return db_layer
-
-"""
-This function loads site configurations to the DB and relates them to other PostGeom objects as site and other_layers. 
-Every object is an individual configuration with a site, site id, srs for transformation, and PostGeom objects.
-"""
-def load_configuration(config_id, config_name, config_srs, site_layer, other_layers=None):
-    # Create the configuration db object
-    db_config = PostConfiguration(config_id=config_id, config_name=config_name, config_srs=config_srs)
-    # Save it to the DB
-    db_config.save()
-    # Add the site foreign key relationship
-    db_config.site.add(site_layer)
-    # For every other layer in other_layers, add the m2m relationship
-    if other_layers:
-        for other_layer in other_layers:
-            db_config.other_layers.add(other_layer)
-    return db_config
-
-"""
-This function takes a postgis query, and turns it into a Finches geoJSON
-"""
-def query_to_json(query, site=False, other_sites=False, srs= None):
-    # this will have to change to the configuration srs
-    geometries = []
-    # for every shape in the query
-    for shape in query:
-        geometry = shape.geom
-        # maybe we will reproject all of them into the site's coordinate system
-        if srs:
-            geometry = shape.geom.transform(srs, True)
-        # get a geoJSON object
-        geometry = json.loads(geometry.json)
-        # create a blank dictionary
-        geom_dict = { }
-        # add the geometry to the dict
-        geom_dict['geometry'] = geometry
-        # add a feature tag to the dict
-        geom_dict['type'] = 'Feature'
-        # get the GIS attribute dictionary into a single dict entry
-        geom_dict['properties'] = eval(shape.atribs)
-        # add the dictionary to a list of geometries
-        geometries.append(geom_dict)
-    # get the name of the layer
-    site_name = query[0].name
-    # if this is the site layer, name it like that
-    if site:
-        site_name = 'site'
-    # if these are other sites, name them like that
-    if other_sites:
-        site_name = 'other_sites'
-    # create the geoJSON for this layer
-    geojson_dict = {"type": "Layer", "name":site_name, "contents":{"type": "Feature Collection", "features":geometries}}
-    return geojson_dict
                     
 
 @login_required
@@ -303,15 +129,6 @@ def browse(request):
     #Maybe we hould add Ajax to the add tags???
     user = request.user
     if request.method == 'POST': # someone is giving us data
-        '''
-        formset = LayerBrowseFormSet(request.POST)
-        if formset.is_valid():
-            for form in formset:
-                # get the DataFile id from the form data
-                data_tags = form.cleaned_data['tags']
-                # now get the actual object associated with that id
-                data_file = DataFile.objects.get(id=data_tags)
-                '''
         formset = LayerReviewFormSet(request.POST)
         if formset.is_valid():
             for form in formset:
@@ -328,6 +145,14 @@ def browse(request):
                 layer.save()
                 layer.files.add(data_file) # add the relation
                 layer.save() # resave the layer
+        
+                if form.cleaned_data['srs'].isnumeric():
+                    srs = int(form.cleaned_data['srs'])
+                else:
+                    srs = int(form.cleaned_data['srs'][form.cleaned_data['srs'].find(':')+1:])
+                # Write the layer to the DB
+                loaded_layer = load_layer(form.cleaned_data['pathy'], srs, user)
+                
         return HttpResponseRedirect('/webfinches/configure/')
 
     else:
@@ -365,7 +190,9 @@ def configure(request):
     """
     user = request.user
     if request.method == 'POST': # someone is editing site configuration
-        layers = DataLayer.objects.filter(author=user).order_by('-date_edited')
+        
+        ############## DELETE!!!!!!!
+        """layers = DataLayer.objects.filter(author=user).order_by('-date_edited')
         # Get site_layer from checkboxes
         site_id = request.POST.get("site_layer")
         site_layer = DataLayer.objects.get(id=site_id)
@@ -390,13 +217,90 @@ def configure(request):
         # We add the m2m relationship with other_layes
         for other_layer in other_layers:
             configuration.other_layers.add(other_layer)
-        configuration.save() # Re-save the SiteConfiguration
+        configuration.save() # Re-save the SiteConfiguration"""
+        
+        '''
+        Here we are getting some user variables
+        '''
+        layers = PostLayerG.objects.filter(author=user).order_by('-date_edited')
+        # Get site_layer from checkboxes
+        site_id = request.POST.get("site_layer")
+        site_layer = PostLayerG.objects.get(id=site_id)
+        # We get the SiteConfiguration name entered by the user
+        config_name = request.POST.get("name") 
+        # Get radius for query
+        try:
+            radius = int(request.POST.get("radius"))
+        except ValueError:
+            radius = 1000 # We give them a predefined Radius if no radius or an invalid radius is selected
+        # We get the SRS code. If the user doesn't provide an srs code, use the site's srs code
+        if len(request.POST.get("srs")) == 0: 
+            config_srs = site_layer.layer_srs
+        else:
+            config_srs = request.POST.get("srs") # Get the srs value to reproject DataLayers
+        # Get other_layers from checkboxes
+        other_ids = request.POST.getlist("other_layers")
+        if len(other_ids) > 0:
+            other_layers = [PostLayerG.objects.get(id=other_layers_id) for other_layers_id in other_ids]
+            # Create a PostSiteConfig with the layers
+            configuration = load_configuration(config_name=config_name, site_layer=site_layer, other_layers=other_layers, config_srs=config_srs, radius=radius)
+            print configuration, configuration.site.all()[0].features.all()
+            
+        else:
+            configuration = load_configuration(config_name=config_name, site_layer=site_layer, config_srs=config_srs, radius=radius)
+            print configuration, configuration.site.all()[0].features.all()
+            
+        """
+        ############################################################################
+        #################################
+        # This ones will have to change and be specific to the configuration
+        # Settings for the query
+        site = 'Final 25 sites_buffer1000m'
+        bart = 'bart_stations'
+        others = [bart]
+        distance = 1500
+        
+        
+        #####################################
+        # this will be selected via the form
+        ##################################
+        my_config = PostConfiguration.objects.filter(config_name=config_name)[0]
+        if my_config.config_srs:
+            srs = my_config.config_srs
+        else: srs = None
+        sites = my_config.site.all()[0].features.all()
+        other_layerz = my_config.other_layers.all()
+        #################
+        # this has to change to all the sites!!!!!!!!
+        ##################"""
+        """for j, my_site in enumerate(sites[:3]):
+            jsons = []
+            # Add the site to the geoJSON
+            jsons.append(query_to_json([sites[j]], site=True, srs=srs))
+            
+            # See if other sites are within the site
+            other_sites_query = sites.filter(geom__distance_lte=(my_site.geom, D(m=distance)))
+            if len(other_sites_query) > 0:
+                jsons.append(query_to_json(other_sites_query, other_sites=True, srs=srs))
+                
+            # Do queries with other layers
+            if len(other_layerz) > 0:
+                for other_layer in other_layerz:
+                    # Here I select which geometries get queried... according to layer name in other layers and site configuration
+                    query = other_layer.features.all().filter(geom__distance_lte=(my_site.geom, D(m=distance)))
+                    if len(query) > 0:
+                        # Add other layers to the geoJSON
+                        jsons.append(query_to_json(query, srs=srs))
+                # Add some other tags to the geoJSON, and transform from a python dict to a geoJSON
+                geoJSON = json.dumps({"layers":jsons, "type":"LayerCollection"})
+                print geoJSON"""
         
         return HttpResponseRedirect('/webfinches/create_sites/')
 
     else:
         # We are browsing data
         layers = DataLayer.objects.filter(author=user).order_by('-date_edited')
+        test_layers = PostLayerG.objects.filter(author=user).order_by('-date_edited')
         if len(layers) >0 : 
             layer = DataLayer.objects.filter(author=user)[0]
             all_tags = Tag.objects.all()
@@ -404,11 +308,12 @@ def configure(request):
             all_tags = None
             print all_tags
             return HttpResponseRedirect('/webfinches/browse_empty/')
-            
-    
+        
+        
     c = {
             'layers': layers,
             'tags': all_tags,
+            'test_layers': test_layers,
     
             }
     return render_to_response(
@@ -758,6 +663,138 @@ def download(request):
             'api_download': api_download,
             #'user': request.User,
             }
+
+"""
+This function loads shape files to the DB and serializes their attributes. Every object is an individual geometry
+with a dictionary, and a layer that may be converted to a JSON
+"""
+def load_shp(layer, srs):
+    # Get the layer name
+    name = layer.name
+    # Get the geometry type
+    geom_type = layer.geom_type.name
+    # Get the GIS fields
+    fields = layer.fields
+    
+    # Get the GEOS geometries from the SHP file
+    geoms = layer.get_geoms(geos=True)
+    for geom in geoms:
+        geom.srid= srs
+    # If the geometries are polygons, turn them into linestrings... postGIS query problems
+    if geom_type == 'Polygon' or geom_type == 'MultiPolygon':
+        geoms = [geom.boundary for geom in geoms]
+
+    shapes = []
+    # For every geometry, get their GIS Attributes and save them in a new object.
+    for num, geom in enumerate(geoms):
+        geom_dict = {}
+        # extracrt the GIS field values
+        for field in fields:
+            geom_dict[str(field)] = str(layer[num].get(field))
+        # Saves the dictionary as a str.....
+        str_dict = json.dumps(geom_dict)
+        # save the object to the DB
+        db_geom = PostGeometries(id_n = num, name = name, srs = srs, atribs = str_dict, geom = geom)
+        db_geom.save()
+        shapes.append(db_geom)
+    return shapes
+
+
+"""
+This function loads shape files to the DB and serializes their attributes. Every object is collection of features
+with a dictionary as a property.
+"""
+def load_layer(shp_path, srs, author):
+    # Set a GDAL datsource
+    ds = DataSource(shp_path)
+    layer = ds[0]
+    # Get the layer name
+    name = layer.name
+    geometry_type = layer.geom_type.name
+    
+    db_layer = PostLayerG(layer_name=name, layer_srs=srs, author=author, geometry_type=geometry_type)
+    db_layer.save()
+    
+    # load the shapes to the db
+    shapes = load_shp(layer, srs)
+    # For every geometry, get their GIS Attributes and save them in a new object.
+    for shape in shapes:
+        db_layer.features.add(shape)
+    return db_layer
+
+"""
+This function loads site configurations to the DB and relates them to other PostGeom objects as site and other_layers. 
+Every object is an individual configuration with a site, site id, srs for transformation, and PostGeom objects.
+"""
+def load_configuration(config_name, site_layer, other_layers=None, radius=1000, config_srs=None):
+    if config_srs == None:
+        config_srs = site_layer.layer_srs
+    
+    # Create the configuration db object
+    db_config = PostConfigurationE(config_name=config_name, radius=radius, config_srs=config_srs)
+    # Save it to the DB
+    db_config.save()
+    # Add the site foreign key relationship
+    db_config.site.add(site_layer)
+    
+    # For every other layer in other_layers, add the m2m relationship
+    if other_layers:
+        for other_layer in other_layers:
+            db_config.other_layers.add(other_layer)
+    return db_config
+
+"""
+This function loads site configurations to the DB and relates them to other PostGeom objects as site and other_layers. 
+Every object is an individual configuration with a site, site id, srs for transformation, and PostGeom objects.
+"""
+"""def load_configuration(config_id, config_name, config_srs, site_layer, other_layers=None):
+    # Create the configuration db object
+    db_config = PostConfigurationF(config_id=config_id, config_name=config_name, config_srs=config_srs)
+    # Save it to the DB
+    db_config.save()
+    # Add the site foreign key relationship
+    db_config.site.add(site_layer)
+    # For every other layer in other_layers, add the m2m relationship
+    if other_layers:
+        for other_layer in other_layers:
+            db_config.other_layers.add(other_layer)
+    return db_config"""
+
+"""
+This function takes a postgis query, and turns it into a Finches geoJSON
+"""
+def query_to_json(query, site=False, other_sites=False, srs= None):
+    # this will have to change to the configuration srs
+    geometries = []
+    # for every shape in the query
+    for shape in query:
+        geometry = shape.geom
+        # maybe we will reproject all of them into the site's coordinate system
+        if srs:
+            geometry = shape.geom.transform(srs, True)
+        # get a geoJSON object
+        geometry = json.loads(geometry.json)
+        # create a blank dictionary
+        geom_dict = { }
+        # add the geometry to the dict
+        geom_dict['geometry'] = geometry
+        # add a feature tag to the dict
+        geom_dict['type'] = 'Feature'
+        # get the GIS attribute dictionary into a single dict entry
+        geom_dict['properties'] = eval(shape.atribs)
+        # add the dictionary to a list of geometries
+        geometries.append(geom_dict)
+    # get the name of the layer
+    site_name = query[0].name
+    # if this is the site layer, name it like that
+    if site:
+        site_name = 'site'
+    # if these are other sites, name them like that
+    if other_sites:
+        site_name = 'other_sites'
+    # create the geoJSON for this layer
+    geojson_dict = {"type": "Layer", "name":site_name, "contents":{"type": "Feature Collection", "features":geometries}}
+    return geojson_dict
 
 def get_centroids(polygon):
     '''

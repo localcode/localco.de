@@ -244,6 +244,32 @@ class PostLayer(models.Model):
     def __unicode__(self):
         return "PostLayerTest: %s, %s features, srs=%s" % (str(self.layer_name), len(self.features.all()), self.layer_srs)
     
+class PostLayerG(models.Model):
+    layer_name = models.TextField(null=True, blank=True)
+    layer_srs = models.IntegerField(null=True, blank=True)
+    features = models.ManyToManyField(PostGeometries, null=True, blank=True)
+    author = models.TextField(null=True, blank=True)
+    date_added = models.DateTimeField(auto_now_add=True)
+    date_edited = models.DateTimeField(auto_now=True)
+    geometry_type = models.TextField(null=True, blank=True)
+    
+    objects = models.GeoManager()
+    def __unicode__(self):
+        return "PostLayerTest: %s, %s features, srs=%s" % (str(self.layer_name), len(self.features.all()), self.layer_srs)
+  
+class PostConfigurationE(models.Model):
+    #config_id = models.IntegerField(null=True)
+    config_name = models.TextField(blank=True, null=True)
+    config_srs = models.IntegerField(null=True, blank=True)
+    site = models.ManyToManyField(PostLayerG, related_name='site', null=True, blank=True)
+    other_layers = models.ManyToManyField(PostLayerG, related_name='other_layers', null=True, blank=True)
+    radius = models.IntegerField( default=1000 )
+    
+    def __unicode__(self):
+        #site_name = self.site.all()[0].layer_name
+        #other_names = ''.join([layer.layer_name for layer in self.other_layers.all()])
+        return "PostConfig: %s, radius: %s, srs: %s" % (str(self.config_name), str(self.radius), str(self.config_srs))
+"""    
 class PostConfiguration(models.Model):
     config_id = models.IntegerField(null=True)
     config_name = models.TextField(blank=True, null=True)
@@ -253,7 +279,7 @@ class PostConfiguration(models.Model):
     def __unicode__(self):
         #site_name = self.site.all()[0].layer_name
         #other_names = ''.join([layer.layer_name for layer in self.other_layers.all()])
-        return "PostConfig: %s: %s" % (self.config_id, str(self.config_name))
+        return "PostConfig: %s: %s" % (self.config_id, str(self.config_name))"""
 
 class DataLayer(Named, Authored, Dated, Noted, GeomType,FilePath):
     srs = models.CharField(max_length=50, null=True, blank=True)

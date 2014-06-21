@@ -25,13 +25,15 @@
     {{ formset.management_form }}
 
 
-    {% if layers %}
+
+    
+    {% if test_layers %}
     <div class="layerset col">
-      {% for layer in layers %}
-        {% include "webfinches/layer_blocks.html" %}
+      {% for layer in test_layers %}
+        {% include "webfinches/layer_blocks_new.html" %}
       {% endfor %}
     </div>
-{% endif %}
+    {% endif %}
 
     <div><input type="submit" value="Upload New Configuration" /></div>
     <div><h1> Site Configuration Name: <input type="text" name="name"/></h1></div>
