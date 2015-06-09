@@ -258,7 +258,7 @@ def create_sites(request):
                         if len(query) > 0:
                             # Add other layers to the geoJSON
                             jsons.append(query_to_json(query, srs=srs))
-                
+                print jsons
                 # Add some other tags to the geoJSON, and transform from a python dict to a geoJSON
                 geoJSON = json.dumps({"layers":jsons, "type":"LayerCollection"})
                 #print geoJSON

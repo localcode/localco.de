@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 from django.core.management import execute_manager
-import imp
+import imp, os, sys
 try:
     imp.find_module('settings') # Assumed to be in the same directory.
 except ImportError:
@@ -11,4 +11,6 @@ except ImportError:
 import settings
 
 if __name__ == "__main__":
+    #os.environ.setdefault("DJANGO_SETTINGS_MODULE", "{{ localcode }}.mysettings")
+    #execute_from_command_line(sys.argv)
     execute_manager(settings)
