@@ -28,7 +28,7 @@ from django.contrib.gis.db import models
 from django.contrib.gis.measure import D
 from django.contrib.gis.gdal import *
 
-
+###test
 
 def index(request):
     """A view for browsing the existing webfinches.
@@ -43,6 +43,7 @@ def upload(request):
     """A view for uploading new data.
     """
     user = request.user
+    print request
     if request.method == 'POST':
         upload = UploadEvent(user=user)
         upload.save()
@@ -68,6 +69,7 @@ def review(request):
     A view for uploading new data.
     """
     user = request.user
+    print 22222
     if request.method == 'POST': # someone is giving us data
         formset = LayerReviewFormSet(request.POST)
         if formset.is_valid():
@@ -80,11 +82,14 @@ def review(request):
                     srs = int(form.cleaned_data['srs'])
                 else:
                     srs = int(form.cleaned_data['srs'][form.cleaned_data['srs'].find(':')+1:])
+                print 33333333333
+                
                 # Write the layer to the DB
                 loaded_layer = load_layer(form.cleaned_data['pathy'], srs, user)
-                print loaded_layer
-                print loaded_layer.author, loaded_layer.date_added, loaded_layer.geometry_type
+                #print loaded_layer
+                #print loaded_layer.author, loaded_layer.date_added, loaded_layer.geometry_type
                 
+
                 
         return HttpResponseRedirect('/webfinches/configure/')
 
@@ -380,6 +385,7 @@ def load_shp(layer, srs):
     
     # Get the GEOS geometries from the SHP file
     geoms = layer.get_geoms(geos=True)
+    print [geom.centroid[0] for geom in geoms]
     for geom in geoms:
         geom.srid= srs
     # If the geometries are polygons, turn them into linestrings... postGIS query problems
@@ -396,9 +402,9 @@ def load_shp(layer, srs):
         # Saves the dictionary as a str.....
         str_dict = json.dumps(geom_dict)
         # save the object to the DB
-        db_geom = PostGeometries(id_n = num, name = name, srs = srs, atribs = str_dict, geom = geom)
-        db_geom.save()
-        shapes.append(db_geom)
+        #db_geom = PostGeometries(id_n = num, name = name, srs = srs, atribs = str_dict, geom = geom)
+        #db_geom.save()
+        #shapes.append(db_geom)
     return shapes
 
 
@@ -414,15 +420,14 @@ def load_layer(shp_path, srs, author):
     name = layer.name
     geometry_type = layer.geom_type.name
     
-    db_layer = PostLayerG(layer_name=name, layer_srs=srs, author=author, geometry_type=geometry_type)
-    db_layer.save()
-    
+    #db_layer = PostLayerG(layer_name=name, layer_srs=srs, author=author, geometry_type=geometry_type)
+    #db_layer.save()
     # load the shapes to the db
     shapes = load_shp(layer, srs)
     # For every geometry, get their GIS Attributes and save them in a new object.
-    for shape in shapes:
-        db_layer.features.add(shape)
-    return db_layer
+    #for shape in shapes:
+    #    db_layer.features.add(shape)
+    #return db_layer
 
 """
 This function loads site configurations to the DB and relates them to other PostGeom objects as site and other_layers. 
