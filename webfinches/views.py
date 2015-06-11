@@ -27,6 +27,7 @@ from django.contrib.gis.geos import *
 from django.contrib.gis.db import models
 from django.contrib.gis.measure import D
 from django.contrib.gis.gdal import *
+import numpy as np
 
 
 
@@ -375,11 +376,15 @@ def load_shp(layer, srs):
     name = layer.name
     # Get the geometry type
     geom_type = layer.geom_type.name
+    print geom_type
+    print 1 
     # Get the GIS fields
     fields = layer.fields
     
     # Get the GEOS geometries from the SHP file
     geoms = layer.get_geoms(geos=True)
+    #print [np.array([geom.centroid[0],geom.centroid[1]]) for geom in geoms]
+    
     for geom in geoms:
         geom.srid= srs
     # If the geometries are polygons, turn them into linestrings... postGIS query problems
